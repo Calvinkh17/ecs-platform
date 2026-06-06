@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { assignRole, addSchoolStudent, deleteSchoolStudent } from "@/app/actions";
 import type { SchoolStudent } from "@/lib/types";
 
@@ -32,6 +32,9 @@ export default function AdminTabs({ meId, users, schoolStudents }: Props) {
   const [tab, setTab] = useState<"users" | "students">("users");
   const [gradeFilter, setGradeFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
+  const [addStatus, setAddStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
+  const [addError, setAddError] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
 
   const pending = users.filter(u => u.role === "pending");
   const others  = users.filter(u => u.role !== "pending");
@@ -157,7 +160,25 @@ export default function AdminTabs({ meId, users, schoolStudents }: Props) {
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
               Add Student to Roster
             </h2>
-            <form action={addSchoolStudent} className="flex flex-wrap gap-2 items-end">
+            <form
+              ref={formRef}
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setAddStatus("pending");
+                setAddError("");
+                try {
+                  const fd = new FormData(e.currentTarget);
+                  await addSchoolStudent(fd);
+                  formRef.current?.reset();
+                  setAddStatus("success");
+                  setTimeout(() => setAddStatus("idle"), 2000);
+                } catch (err) {
+                  setAddStatus("error");
+                  setAddError(String(err));
+                }
+              }}
+              className="flex flex-wrap gap-2 items-end"
+            >
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">Name</label>
                 <input
@@ -205,11 +226,18 @@ export default function AdminTabs({ meId, users, schoolStudents }: Props) {
               </div>
               <button
                 type="submit"
-                className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
+                disabled={addStatus === "pending"}
+                className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
               >
-                Add
+                {addStatus === "pending" ? "Adding…" : "Add"}
               </button>
             </form>
+            {addStatus === "success" && (
+              <p className="mt-2 text-sm text-green-600">Student added successfully.</p>
+            )}
+            {addStatus === "error" && (
+              <p className="mt-2 text-sm text-red-500">Error: {addError || "Something went wrong."}</p>
+            )}
           </section>
 
           {/* Filters + student list */}
