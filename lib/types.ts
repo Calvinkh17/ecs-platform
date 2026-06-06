@@ -4,10 +4,20 @@ export interface Class {
   created_at: string;
 }
 
+export interface SchoolStudent {
+  id: string;
+  name: string;
+  grade_level: string;
+  email: string | null;
+  year_joined: number;
+  created_at: string;
+}
+
 export interface Student {
   id: string;
   class_id: string;
   name: string;
+  school_student_id: string | null;
   created_at: string;
 }
 

@@ -33,8 +33,37 @@ export async function addStudent(formData: FormData) {
   const supabase = await createClient();
   const name = formData.get("name") as string;
   const class_id = formData.get("class_id") as string;
+  const school_student_id = formData.get("school_student_id") as string | null;
   if (!name?.trim() || !class_id) return;
-  await supabase.from("students").insert({ name: name.trim(), class_id });
+  await supabase.from("students").insert({
+    name: name.trim(),
+    class_id,
+    school_student_id: school_student_id || null,
+  });
+  refresh();
+}
+
+export async function addSchoolStudent(formData: FormData) {
+  const supabase = await createClient();
+  const name = formData.get("name") as string;
+  const grade_level = formData.get("grade_level") as string;
+  const year_joined = formData.get("year_joined") as string;
+  const email = formData.get("email") as string;
+  if (!name?.trim() || !grade_level || !year_joined) return;
+  await supabase.from("school_students").insert({
+    name: name.trim(),
+    grade_level,
+    year_joined: parseInt(year_joined),
+    email: email?.trim() || null,
+  });
+  refresh();
+}
+
+export async function deleteSchoolStudent(formData: FormData) {
+  const supabase = await createClient();
+  const id = formData.get("id") as string;
+  if (!id) return;
+  await supabase.from("school_students").delete().eq("id", id);
   refresh();
 }
 

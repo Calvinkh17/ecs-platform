@@ -1,18 +1,18 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { addStudent, addAssignment } from "@/app/actions";
+import { addAssignment } from "@/app/actions";
 import GradebookSection from "./GradebookSection";
 import AppNav from "@/components/AppNav";
 import DeleteStudentButton from "./DeleteStudentButton";
 import DeleteAssignmentButton from "./DeleteAssignmentButton";
-import type { Class, Student, Assignment, Grade } from "@/lib/types";
+import AddStudentDropdown from "./AddStudentDropdown";
+import type { Class, Student, Assignment, Grade, SchoolStudent } from "@/lib/types";
 
 export default async function ClassPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: cls }, { data: students }, { data: assignments }, { data: grades }] =
+  const [{ data: cls }, { data: students }, { data: assignments }, { data: grades }, { data: allRoster }] =
     await Promise.all([
       supabase.from("classes").select("*").eq("id", id).single(),
       supabase.from("students").select("*").eq("class_id", id).order("name"),
@@ -25,6 +25,7 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
           (await supabase.from("assignments").select("id").eq("class_id", id))
             .data?.map((a) => a.id) ?? []
         ),
+      supabase.from("school_students").select("*").order("name"),
     ]);
 
   if (!cls) notFound();
@@ -34,6 +35,13 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
     if (!gradeMap[g.student_id]) gradeMap[g.student_id] = {};
     gradeMap[g.student_id][g.assignment_id] = g;
   }
+
+  const enrolledRosterIds = new Set(
+    (students as Student[])?.map(s => s.school_student_id).filter(Boolean) ?? []
+  );
+  const availableRoster = (allRoster as SchoolStudent[])?.filter(
+    s => !enrolledRosterIds.has(s.id)
+  ) ?? [];
 
   return (
     <div className="min-h-screen">
@@ -46,22 +54,7 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
               Add Student
             </h2>
-            <form action={addStudent} className="flex gap-2">
-              <input type="hidden" name="class_id" value={id} />
-              <input
-                type="text"
-                name="name"
-                placeholder="Student name"
-                required
-                className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                Add
-              </button>
-            </form>
+            <AddStudentDropdown classId={id} rosterStudents={availableRoster} />
             {students?.length ? (
               <ul className="mt-3 space-y-1">
                 {(students as Student[]).map((s) => (
