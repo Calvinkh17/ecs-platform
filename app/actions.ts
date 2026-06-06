@@ -49,13 +49,17 @@ export async function addSchoolStudent(formData: FormData) {
   const grade_level = formData.get("grade_level") as string;
   const year_joined = formData.get("year_joined") as string;
   const email = formData.get("email") as string;
-  if (!name?.trim() || !grade_level || !year_joined) return;
-  await supabase.from("school_students").insert({
+  if (!name?.trim() || !grade_level || !year_joined) {
+    console.error("addSchoolStudent: missing fields", { name, grade_level, year_joined });
+    return;
+  }
+  const { error } = await supabase.from("school_students").insert({
     name: name.trim(),
     grade_level,
     year_joined: parseInt(year_joined),
     email: email?.trim() || null,
   });
+  if (error) console.error("addSchoolStudent DB error:", error);
   refresh();
 }
 
