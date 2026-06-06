@@ -4,7 +4,7 @@ import { useState } from "react";
 import { assignRole, addSchoolStudent, deleteSchoolStudent } from "@/app/actions";
 import type { SchoolStudent } from "@/lib/types";
 
-const GRADE_LEVELS = ["K","1","2","3","4","5","6","7","8","9","10","11","12"];
+const GRADE_LEVELS = ["K","1","2","3","4","5","6","7","8","9","10","11","12","Graduated"];
 const ROLES = ["admin","teacher","parent","student","pending"] as const;
 
 const roleColors: Record<string, string> = {
@@ -178,7 +178,7 @@ export default function AdminTabs({ meId, users, schoolStudents }: Props) {
                 >
                   <option value="" disabled>Grade…</option>
                   {GRADE_LEVELS.map(g => (
-                    <option key={g} value={g}>{g === "K" ? "Kindergarten" : `Grade ${g}`}</option>
+                    <option key={g} value={g}>{g === "K" ? "Kindergarten" : g === "Graduated" ? "Graduated" : `Grade ${g}`}</option>
                   ))}
                 </select>
               </div>
@@ -226,7 +226,7 @@ export default function AdminTabs({ meId, users, schoolStudents }: Props) {
                 >
                   <option value="">All grades</option>
                   {GRADE_LEVELS.map(g => (
-                    <option key={g} value={g}>{g === "K" ? "Kindergarten" : `Grade ${g}`}</option>
+                    <option key={g} value={g}>{g === "K" ? "Kindergarten" : g === "Graduated" ? "Graduated" : `Grade ${g}`}</option>
                   ))}
                 </select>
                 <select
