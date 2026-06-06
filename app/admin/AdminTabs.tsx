@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { assignRole, addSchoolStudent, deleteSchoolStudent } from "@/app/actions";
 import type { SchoolStudent } from "@/lib/types";
 
@@ -35,6 +36,7 @@ export default function AdminTabs({ meId, users, schoolStudents }: Props) {
   const [addStatus, setAddStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
   const [addError, setAddError] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
 
   const pending = users.filter(u => u.role === "pending");
   const others  = users.filter(u => u.role !== "pending");
@@ -170,6 +172,7 @@ export default function AdminTabs({ meId, users, schoolStudents }: Props) {
                   const fd = new FormData(e.currentTarget);
                   await addSchoolStudent(fd);
                   formRef.current?.reset();
+                  router.refresh();
                   setAddStatus("success");
                   setTimeout(() => setAddStatus("idle"), 2000);
                 } catch (err) {
