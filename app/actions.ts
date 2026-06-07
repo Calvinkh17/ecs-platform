@@ -59,7 +59,7 @@ export async function addSchoolStudent(formData: FormData) {
     year_joined: parseInt(year_joined),
     email: email?.trim() || null,
   });
-  if (error) console.error("addSchoolStudent DB error:", error);
+  if (error) throw new Error(error.message);
   refresh();
 }
 

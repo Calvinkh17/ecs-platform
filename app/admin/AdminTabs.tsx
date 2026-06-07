@@ -198,7 +198,7 @@ export default function AdminTabs({ meId, users, schoolStudents }: Props) {
                   name="grade_level"
                   required
                   defaultValue=""
-                  className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
                 >
                   <option value="" disabled>Grade…</option>
                   {GRADE_LEVELS.map(g => (
