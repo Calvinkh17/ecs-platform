@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { assignRole, addSchoolStudent, deleteSchoolStudent } from "@/app/actions";
 import type { SchoolStudent } from "@/lib/types";
 
@@ -29,21 +28,21 @@ interface Props {
   schoolStudents: SchoolStudent[];
 }
 
-export default function AdminTabs({ meId, users, schoolStudents }: Props) {
+export default function AdminTabs({ meId, users, schoolStudents: initialStudents }: Props) {
   const [tab, setTab] = useState<"users" | "students">("users");
   const [gradeFilter, setGradeFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
   const [addStatus, setAddStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
   const [addError, setAddError] = useState("");
+  const [roster, setRoster] = useState<SchoolStudent[]>(initialStudents);
   const formRef = useRef<HTMLFormElement>(null);
-  const router = useRouter();
 
   const pending = users.filter(u => u.role === "pending");
   const others  = users.filter(u => u.role !== "pending");
 
-  const uniqueYears = [...new Set(schoolStudents.map(s => s.year_joined))].sort((a, b) => b - a);
+  const uniqueYears = [...new Set(roster.map(s => s.year_joined))].sort((a, b) => b - a);
 
-  const filtered = schoolStudents.filter(s => {
+  const filtered = roster.filter(s => {
     if (gradeFilter && s.grade_level !== gradeFilter) return false;
     if (yearFilter && String(s.year_joined) !== yearFilter) return false;
     return true;
@@ -171,8 +170,16 @@ export default function AdminTabs({ meId, users, schoolStudents }: Props) {
                 try {
                   const fd = new FormData(e.currentTarget);
                   await addSchoolStudent(fd);
+                  const newStudent: SchoolStudent = {
+                    id: crypto.randomUUID(),
+                    name: (fd.get("name") as string).trim(),
+                    grade_level: fd.get("grade_level") as string,
+                    year_joined: parseInt(fd.get("year_joined") as string),
+                    email: (fd.get("email") as string)?.trim() || null,
+                    created_at: new Date().toISOString(),
+                  };
+                  setRoster(prev => [...prev, newStudent].sort((a, b) => a.name.localeCompare(b.name)));
                   formRef.current?.reset();
-                  router.refresh();
                   setAddStatus("success");
                   setTimeout(() => setAddStatus("idle"), 2000);
                 } catch (err) {
@@ -307,16 +314,18 @@ export default function AdminTabs({ meId, users, schoolStudents }: Props) {
                         <td className="px-5 py-3 text-gray-600">{s.year_joined}</td>
                         <td className="px-5 py-3 text-gray-400">{s.email ?? "—"}</td>
                         <td className="px-5 py-3 text-right">
-                          <form action={deleteSchoolStudent}>
-                            <input type="hidden" name="id" value={s.id} />
-                            <button
-                              type="submit"
-                              className="text-xs text-red-400 hover:text-red-600 transition-colors"
-                              onClick={e => { if (!confirm(`Remove "${s.name}" from the roster?`)) e.preventDefault(); }}
-                            >
-                              Delete
-                            </button>
-                          </form>
+                          <button
+                            className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                            onClick={async () => {
+                              if (!confirm(`Remove "${s.name}" from the roster?`)) return;
+                              const fd = new FormData();
+                              fd.append("id", s.id);
+                              await deleteSchoolStudent(fd);
+                              setRoster(prev => prev.filter(r => r.id !== s.id));
+                            }}
+                          >
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     ))}
