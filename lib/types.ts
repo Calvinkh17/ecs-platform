@@ -36,3 +36,13 @@ export interface Grade {
   score: number | null;
   created_at: string;
 }
+
+export interface ParentLink {
+  id: string;
+  parent_id: string;
+  student_id: string;
+  parent_name: string;
+  parent_email: string;
+  student_name: string;
+  created_at: string;
+}

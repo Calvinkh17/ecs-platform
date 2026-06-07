@@ -70,6 +70,25 @@ export async function deleteSchoolStudent(formData: FormData) {
   if (error) throw new Error(error.message);
 }
 
+export async function linkParentStudent(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const parent_id = formData.get("parent_id") as string;
+  const student_id = formData.get("student_id") as string;
+  if (!parent_id || !student_id) return { error: "Select both a parent and a student." };
+  const { error } = await supabase.from("parent_students").insert({ parent_id, student_id });
+  if (error) return { error: error.message };
+  return {};
+}
+
+export async function unlinkParentStudent(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const id = formData.get("id") as string;
+  if (!id) return { error: "Missing ID." };
+  const { error } = await supabase.from("parent_students").delete().eq("id", id);
+  if (error) return { error: error.message };
+  return {};
+}
+
 export async function addAssignment(formData: FormData) {
   const supabase = await createClient();
   const name = formData.get("name") as string;
