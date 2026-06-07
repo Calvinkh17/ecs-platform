@@ -169,7 +169,12 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                 setAddError("");
                 try {
                   const fd = new FormData(e.currentTarget);
-                  await addSchoolStudent(fd);
+                  const result = await addSchoolStudent(fd);
+                  if (result?.error) {
+                    setAddStatus("error");
+                    setAddError(result.error);
+                    return;
+                  }
                   const newStudent: SchoolStudent = {
                     id: crypto.randomUUID(),
                     name: (fd.get("name") as string).trim(),

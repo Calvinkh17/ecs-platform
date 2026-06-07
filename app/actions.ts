@@ -43,15 +43,14 @@ export async function addStudent(formData: FormData) {
   refresh();
 }
 
-export async function addSchoolStudent(formData: FormData) {
+export async function addSchoolStudent(formData: FormData): Promise<{ error?: string }> {
   const supabase = await createClient();
   const name = formData.get("name") as string;
   const grade_level = formData.get("grade_level") as string;
   const year_joined = formData.get("year_joined") as string;
   const email = formData.get("email") as string;
   if (!name?.trim() || !grade_level || !year_joined) {
-    console.error("addSchoolStudent: missing fields", { name, grade_level, year_joined });
-    return;
+    return { error: `Missing fields: name=${name} grade=${grade_level} year=${year_joined}` };
   }
   const { error } = await supabase.from("school_students").insert({
     name: name.trim(),
@@ -59,7 +58,8 @@ export async function addSchoolStudent(formData: FormData) {
     year_joined: parseInt(year_joined),
     email: email?.trim() || null,
   });
-  if (error) throw new Error(error.message);
+  if (error) return { error: error.message };
+  return {};
 }
 
 export async function deleteSchoolStudent(formData: FormData) {
