@@ -62,7 +62,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                 : "border-transparent text-gray-400 hover:text-gray-700"
             }`}
           >
-            {t === "users" ? `Users (${users.length})` : `Students (${schoolStudents.length})`}
+            {t === "users" ? `Users (${users.length})` : `Students (${roster.length})`}
           </button>
         ))}
       </div>
@@ -254,7 +254,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
           <section>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
-                All Students ({filtered.length}{filtered.length !== schoolStudents.length ? ` of ${schoolStudents.length}` : ""})
+                All Students ({filtered.length}{filtered.length !== roster.length ? ` of ${roster.length}` : ""})
               </h2>
               <div className="flex items-center gap-2">
                 <select
@@ -290,7 +290,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
 
             {filtered.length === 0 ? (
               <div className="text-center py-10 text-gray-400 bg-white rounded-xl border border-gray-100 text-sm">
-                {schoolStudents.length === 0 ? "No students in the roster yet." : "No students match the selected filters."}
+                {roster.length === 0 ? "No students in the roster yet." : "No students match the selected filters."}
               </div>
             ) : (
               <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
