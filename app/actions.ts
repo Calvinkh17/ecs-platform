@@ -60,15 +60,14 @@ export async function addSchoolStudent(formData: FormData) {
     email: email?.trim() || null,
   });
   if (error) throw new Error(error.message);
-  refresh();
 }
 
 export async function deleteSchoolStudent(formData: FormData) {
   const supabase = await createClient();
   const id = formData.get("id") as string;
   if (!id) return;
-  await supabase.from("school_students").delete().eq("id", id);
-  refresh();
+  const { error } = await supabase.from("school_students").delete().eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 export async function addAssignment(formData: FormData) {
