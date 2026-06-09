@@ -90,7 +90,7 @@ export default function AddStudentDropdown({ classId, rosterStudents }: Props) {
               >
                 <span className="font-medium text-gray-800">{s.name}</span>
                 <span className="ml-2 text-xs text-gray-400">
-                  {s.grade_level === "K" ? "K" : `Gr. ${s.grade_level}`} · {s.year_joined}
+                  {s.grade_level === "K" ? "K" : `Gr. ${s.grade_level}`} · Grad. {s.graduating_year}
                 </span>
               </button>
             ))}

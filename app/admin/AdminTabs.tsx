@@ -225,7 +225,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                 <input type="number" name="year_joined" placeholder="2024" min={2000} max={2100} required className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-28" />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-gray-400">Graduating Year (optional)</label>
+                <label className="text-xs text-gray-400">Graduating Year</label>
                 <input type="number" name="graduating_year" placeholder="2026" min={2000} max={2100} required className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-36" />
               </div>
               <div className="flex flex-col gap-1">
