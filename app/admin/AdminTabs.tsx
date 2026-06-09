@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { assignRole, addSchoolStudent, deleteSchoolStudent, linkParentStudent, unlinkParentStudent } from "@/app/actions";
+import { assignRole, addSchoolStudent, deleteSchoolStudent, updateSchoolStudent, linkParentStudent, unlinkParentStudent } from "@/app/actions";
 import type { SchoolStudent, ParentLink } from "@/lib/types";
 
 const GRADE_LEVELS = ["K","1","2","3","4","5","6","7","8","9","10","11","12","Graduated"];
@@ -38,6 +38,10 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
   const [addStatus, setAddStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
   const [addError, setAddError] = useState("");
   const [roster, setRoster] = useState<SchoolStudent[]>(initialStudents);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState({ name: "", grade_level: "", year_joined: "", email: "" });
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   // Parents tab state
@@ -267,25 +271,123 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map(s => (
+                    {filtered.map(s => editingId === s.id ? (
+                      <tr key={s.id} className="border-b border-gray-50 last:border-0 bg-blue-50/20">
+                        <td className="px-3 py-2">
+                          <input
+                            type="text"
+                            value={editValues.name}
+                            onChange={e => setEditValues(v => ({ ...v, name: e.target.value }))}
+                            className="w-full px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                          />
+                        </td>
+                        <td className="px-3 py-2">
+                          <select
+                            value={editValues.grade_level}
+                            onChange={e => setEditValues(v => ({ ...v, grade_level: e.target.value }))}
+                            className="w-full px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                          >
+                            {GRADE_LEVELS.map(g => (
+                              <option key={g} value={g}>{g === "K" ? "Kindergarten" : g === "Graduated" ? "Graduated" : `Grade ${g}`}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-3 py-2">
+                          <input
+                            type="number"
+                            value={editValues.year_joined}
+                            onChange={e => setEditValues(v => ({ ...v, year_joined: e.target.value }))}
+                            min={2000}
+                            max={2100}
+                            className="w-24 px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                          />
+                        </td>
+                        <td className="px-3 py-2">
+                          <input
+                            type="email"
+                            value={editValues.email}
+                            onChange={e => setEditValues(v => ({ ...v, email: e.target.value }))}
+                            placeholder="optional"
+                            className="w-full px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                          />
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          <div className="flex items-center justify-end gap-2 flex-wrap">
+                            <button
+                              disabled={editSaving}
+                              onClick={async () => {
+                                setEditSaving(true);
+                                setEditError("");
+                                const fd = new FormData();
+                                fd.append("id", s.id);
+                                fd.append("name", editValues.name);
+                                fd.append("grade_level", editValues.grade_level);
+                                fd.append("year_joined", editValues.year_joined);
+                                fd.append("email", editValues.email);
+                                const result = await updateSchoolStudent(fd);
+                                setEditSaving(false);
+                                if (result?.error) { setEditError(result.error); return; }
+                                setRoster(prev =>
+                                  prev.map(r => r.id === s.id ? {
+                                    ...r,
+                                    name: editValues.name.trim(),
+                                    grade_level: editValues.grade_level,
+                                    year_joined: parseInt(editValues.year_joined),
+                                    email: editValues.email.trim() || null,
+                                  } : r).sort((a, b) => a.name.localeCompare(b.name))
+                                );
+                                setEditingId(null);
+                              }}
+                              className="text-xs font-medium text-green-600 hover:text-green-800 disabled:opacity-50 transition-colors"
+                            >
+                              {editSaving ? "Saving…" : "Save"}
+                            </button>
+                            <button
+                              onClick={() => { setEditingId(null); setEditError(""); }}
+                              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                            {editError && <span className="text-xs text-red-500">{editError}</span>}
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
                       <tr key={s.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
                         <td className="px-5 py-3 font-medium text-gray-800">{s.name}</td>
                         <td className="px-5 py-3 text-gray-600">{s.grade_level === "K" ? "Kindergarten" : s.grade_level === "Graduated" ? "Graduated" : `Grade ${s.grade_level}`}</td>
                         <td className="px-5 py-3 text-gray-600">{s.year_joined}</td>
                         <td className="px-5 py-3 text-gray-400">{s.email ?? "—"}</td>
                         <td className="px-5 py-3 text-right">
-                          <button
-                            className="text-xs text-red-400 hover:text-red-600 transition-colors"
-                            onClick={async () => {
-                              if (!confirm(`Remove "${s.name}" from the roster?`)) return;
-                              const fd = new FormData();
-                              fd.append("id", s.id);
-                              await deleteSchoolStudent(fd);
-                              setRoster(prev => prev.filter(r => r.id !== s.id));
-                            }}
-                          >
-                            Delete
-                          </button>
+                          <div className="flex items-center justify-end gap-3">
+                            <button
+                              className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
+                              onClick={() => {
+                                setEditingId(s.id);
+                                setEditValues({
+                                  name: s.name,
+                                  grade_level: s.grade_level,
+                                  year_joined: String(s.year_joined),
+                                  email: s.email ?? "",
+                                });
+                                setEditError("");
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                              onClick={async () => {
+                                if (!confirm(`Remove "${s.name}" from the roster?`)) return;
+                                const fd = new FormData();
+                                fd.append("id", s.id);
+                                await deleteSchoolStudent(fd);
+                                setRoster(prev => prev.filter(r => r.id !== s.id));
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

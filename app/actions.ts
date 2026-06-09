@@ -62,6 +62,22 @@ export async function addSchoolStudent(formData: FormData): Promise<{ error?: st
   return {};
 }
 
+export async function updateSchoolStudent(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const id = formData.get("id") as string;
+  const name = formData.get("name") as string;
+  const grade_level = formData.get("grade_level") as string;
+  const year_joined = formData.get("year_joined") as string;
+  const email = formData.get("email") as string;
+  if (!id || !name?.trim() || !grade_level || !year_joined) return { error: "Missing required fields." };
+  const { error } = await supabase
+    .from("school_students")
+    .update({ name: name.trim(), grade_level, year_joined: parseInt(year_joined), email: email?.trim() || null })
+    .eq("id", id);
+  if (error) return { error: error.message };
+  return {};
+}
+
 export async function deleteSchoolStudent(formData: FormData) {
   const supabase = await createClient();
   const id = formData.get("id") as string;
