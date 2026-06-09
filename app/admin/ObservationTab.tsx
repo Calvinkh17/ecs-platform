@@ -29,7 +29,7 @@ interface ActiveObs {
 }
 
 function initResponses(): Record<string, Status> {
-  return Object.fromEntries(ALL_POINT_KEYS.map(k => [k, "na" as Status]));
+  return Object.fromEntries(ALL_POINT_KEYS.map(k => [k, "observed" as Status]));
 }
 
 function computeScore(obsId: string, responses: ObservationResponse[]): number {
