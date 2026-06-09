@@ -38,16 +38,8 @@ function computeScore(obsId: string, responses: ObservationResponse[]): number {
 }
 
 // ── Single rubric point row ────────────────────────────────
-function PointRow({
-  index,
-  text,
-  status,
-  onChange,
-}: {
-  index: number;
-  text: string;
-  status: Status;
-  onChange: (s: Status) => void;
+function PointRow({ index, text, status, onChange }: {
+  index: number; text: string; status: Status; onChange: (s: Status) => void;
 }) {
   const buttons: { s: Status; label: string; active: string }[] = [
     { s: "observed",     label: "Observed",     active: "bg-green-600 text-white border-green-600" },
@@ -57,8 +49,7 @@ function PointRow({
   return (
     <div className="py-3.5 border-b border-gray-50 last:border-0">
       <p className="text-sm text-gray-800 mb-2.5 leading-snug">
-        <span className="text-gray-400 mr-1">{index}.</span>
-        {text}
+        <span className="text-gray-400 mr-1">{index}.</span>{text}
       </p>
       <div className="grid grid-cols-3 gap-1.5">
         {buttons.map(({ s, label, active }) => (
@@ -79,20 +70,14 @@ function PointRow({
 }
 
 // ── Law section card ──────────────────────────────────────
-function LawCard({
-  law,
-  responses,
-  onChange,
-}: {
+function LawCard({ law, responses, onChange }: {
   law: typeof RUBRIC[0];
   responses: Record<string, Status>;
   onChange: (key: string, s: Status) => void;
 }) {
   const observed = law.points.filter(p => responses[p.key] === "observed").length;
-  const total = law.points.length;
-  const allDone = observed === total;
+  const allDone = observed === law.points.length;
   const none = observed === 0 && law.points.every(p => responses[p.key] === "na");
-
   return (
     <div className="bg-white border border-gray-100 rounded-xl overflow-hidden mb-4">
       <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
@@ -102,7 +87,7 @@ function LawCard({
         </div>
         <div className="text-right flex-shrink-0 ml-3">
           <p className={`text-xl font-bold ${allDone ? "text-green-600" : none ? "text-gray-300" : "text-gray-800"}`}>
-            {observed}/{total}
+            {observed}/{law.points.length}
           </p>
           <p className="text-xs text-gray-400 leading-none mt-0.5">observed</p>
         </div>
@@ -113,7 +98,7 @@ function LawCard({
             key={p.key}
             index={i + 1}
             text={p.text}
-            status={responses[p.key] ?? "na"}
+            status={responses[p.key] ?? "observed"}
             onChange={s => onChange(p.key, s)}
           />
         ))}
@@ -122,30 +107,22 @@ function LawCard({
   );
 }
 
-// ── Pattern analysis (shown when teacher has 2+ observations) ──
-function PatternAnalysis({
-  teacherObs,
-  allResponses,
-}: {
+// ── Pattern analysis ──────────────────────────────────────
+function PatternAnalysis({ teacherObs, allResponses }: {
   teacherObs: Observation[];
   allResponses: ObservationResponse[];
 }) {
   if (teacherObs.length < 2) return null;
-
   type Gap = { key: string; text: string; lawNum: number; lawTitle: string; count: number };
   const gaps: Gap[] = [];
-
   for (const law of RUBRIC) {
     for (const point of law.points) {
       const count = teacherObs.filter(obs =>
         allResponses.some(r => r.observation_id === obs.id && r.point_key === point.key && r.status === "not_observed")
       ).length;
-      if (count >= 2) {
-        gaps.push({ key: point.key, text: point.text, lawNum: law.number, lawTitle: law.title, count });
-      }
+      if (count >= 2) gaps.push({ key: point.key, text: point.text, lawNum: law.number, lawTitle: law.title, count });
     }
   }
-
   if (gaps.length === 0) {
     return (
       <div className="text-sm text-green-700 bg-green-50 border border-green-100 rounded-xl px-4 py-3">
@@ -153,7 +130,6 @@ function PatternAnalysis({
       </div>
     );
   }
-
   return (
     <div className="bg-white border border-red-100 rounded-xl overflow-hidden">
       <div className="px-4 py-3 bg-red-50 border-b border-red-100">
@@ -178,10 +154,29 @@ function PatternAnalysis({
 
 // ── Main component ─────────────────────────────────────────
 export default function ObservationTab({ teachers, initialObservations, initialResponses }: Props) {
-  const [view, setView] = useState<"list" | "form">("list");
+  // Hooks first — state initializers below depend on searchParams
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Check for an in-progress observation to resume on load
+  const resumingId = searchParams.get("resuming") ?? "";
+  const resumingObs = resumingId ? initialObservations.find(o => o.id === resumingId) : null;
+  const canResume = resumingObs != null && !initialResponses.some(r => r.observation_id === resumingId);
+
+  const [view, setView] = useState<"list" | "form">(() => canResume ? "form" : "list");
   const [observations, setObservations] = useState<Observation[]>(initialObservations);
   const [allResponses, setAllResponses] = useState<ObservationResponse[]>(initialResponses);
-  const [activeObs, setActiveObs] = useState<ActiveObs | null>(null);
+  const [activeObs, setActiveObs] = useState<ActiveObs | null>(() => {
+    if (!canResume || !resumingObs) return null;
+    const teacher = teachers.find(t => t.id === resumingObs.teacher_id);
+    return {
+      id: resumingObs.id,
+      teacherId: resumingObs.teacher_id,
+      teacherName: teacher?.name || teacher?.email || "Unknown",
+      number: resumingObs.observation_number,
+      date: resumingObs.date,
+    };
+  });
 
   // Form state
   const [responses, setResponses] = useState<Record<string, Status>>(initResponses);
@@ -196,14 +191,18 @@ export default function ObservationTab({ teachers, initialObservations, initialR
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState("");
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
   // History state — seeded from URL
   const [historyTeacherId, setHistoryTeacherId] = useState<string>(
     () => searchParams.get("teacher") ?? ""
   );
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const totalObserved = ALL_POINT_KEYS.filter(k => responses[k] === "observed").length;
+  const pct = Math.round((totalObserved / TOTAL_POINTS) * 100);
+
+  function setResponse(key: string, s: Status) {
+    setResponses(prev => ({ ...prev, [key]: s }));
+  }
 
   function changeHistoryTeacher(id: string) {
     setHistoryTeacherId(id);
@@ -213,48 +212,48 @@ export default function ObservationTab({ teachers, initialObservations, initialR
     router.replace(`?${params.toString()}`, { scroll: false });
   }
 
-  const totalObserved = ALL_POINT_KEYS.filter(k => responses[k] === "observed").length;
-  const pct = Math.round((totalObserved / TOTAL_POINTS) * 100);
+  function openForm(obs: ActiveObs) {
+    setActiveObs(obs);
+    setResponses(initResponses());
+    setNotes("");
+    setSaveError("");
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("resuming", obs.id);
+    router.replace(`?${params.toString()}`, { scroll: false });
+    setView("form");
+  }
 
-  function setResponse(key: string, s: Status) {
-    setResponses(prev => ({ ...prev, [key]: s }));
+  function closeForm() {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("resuming");
+    router.replace(`?${params.toString()}`, { scroll: false });
+    setView("list");
+    setActiveObs(null);
   }
 
   async function startObservation() {
-    if (!teacherSelect || !obsNumSelect) {
-      setStartError("Select a teacher and observation number.");
-      return;
-    }
-    setStarting(true);
-    setStartError("");
+    if (!teacherSelect || !obsNumSelect) { setStartError("Select a teacher and observation number."); return; }
+    setStarting(true); setStartError("");
     const fd = new FormData();
     fd.append("teacher_id", teacherSelect);
     fd.append("observation_number", obsNumSelect);
     fd.append("date", dateSelect);
     const result = await createObservation(fd);
     setStarting(false);
-    if (result.error || !result.id) {
-      setStartError(result.error ?? "Failed to start observation.");
-      return;
-    }
+    if (result.error || !result.id) { setStartError(result.error ?? "Failed to start observation."); return; }
     const teacher = teachers.find(t => t.id === teacherSelect);
-    setActiveObs({
+    openForm({
       id: result.id,
       teacherId: teacherSelect,
       teacherName: teacher?.name || teacher?.email || "Unknown",
       number: parseInt(obsNumSelect),
       date: dateSelect,
     });
-    setResponses(initResponses());
-    setNotes("");
-    setSaveError("");
-    setView("form");
   }
 
   async function handleSave() {
     if (!activeObs) return;
-    setSaving(true);
-    setSaveError("");
+    setSaving(true); setSaveError("");
     const fd = new FormData();
     fd.append("observation_id", activeObs.id);
     fd.append("notes", notes);
@@ -266,24 +265,24 @@ export default function ObservationTab({ teachers, initialObservations, initialR
     if (result.error) { setSaveError(result.error); return; }
 
     const newObs: Observation = {
-      id: activeObs.id,
-      teacher_id: activeObs.teacherId,
-      observer_id: "",
-      observation_number: activeObs.number,
-      date: activeObs.date,
-      notes: notes.trim() || null,
-      created_at: new Date().toISOString(),
+      id: activeObs.id, teacher_id: activeObs.teacherId, observer_id: "",
+      observation_number: activeObs.number, date: activeObs.date,
+      notes: notes.trim() || null, created_at: new Date().toISOString(),
     };
     const newResps: ObservationResponse[] = Object.entries(responses).map(([point_key, status]) => ({
-      id: crypto.randomUUID(),
-      observation_id: activeObs.id,
-      point_key,
-      status,
+      id: crypto.randomUUID(), observation_id: activeObs.id, point_key, status,
       created_at: new Date().toISOString(),
     }));
     setObservations(prev => [newObs, ...prev]);
     setAllResponses(prev => [...prev, ...newResps]);
-    changeHistoryTeacher(activeObs.teacherId);
+
+    // Navigate back to history for this teacher, clear resuming param
+    setHistoryTeacherId(activeObs.teacherId);
+    setExpandedId(null);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("teacher", activeObs.teacherId);
+    params.delete("resuming");
+    router.replace(`?${params.toString()}`, { scroll: false });
     setActiveObs(null);
     setView("list");
   }
@@ -292,9 +291,8 @@ export default function ObservationTab({ teachers, initialObservations, initialR
   if (view === "form" && activeObs) {
     const scoreColor = totalObserved >= 18 ? "text-green-600" : totalObserved >= 12 ? "text-yellow-600" : "text-red-500";
     return (
-      <div className="-mx-0">
-        {/* Sticky score header */}
-        <div className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between shadow-sm -mx-0 rounded-xl mb-4">
+      <div>
+        <div className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between shadow-sm rounded-xl mb-4">
           <div className="min-w-0">
             <p className="text-xs text-gray-400 truncate">{ORDINALS[activeObs.number]} Observation</p>
             <p className="text-sm font-bold text-gray-900 truncate">{activeObs.teacherName}</p>
@@ -306,10 +304,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
           </div>
           <button
             onClick={() => {
-              if (confirm("Discard this observation? The record will remain but have no responses.")) {
-                setView("list");
-                setActiveObs(null);
-              }
+              if (confirm("Leave this observation? You can resume it from the history list.")) closeForm();
             }}
             className="text-xs text-gray-400 hover:text-gray-600 px-3 py-1.5 border border-gray-200 rounded-lg flex-shrink-0"
           >
@@ -317,12 +312,10 @@ export default function ObservationTab({ teachers, initialObservations, initialR
           </button>
         </div>
 
-        {/* Law cards */}
         {RUBRIC.map(law => (
           <LawCard key={law.number} law={law} responses={responses} onChange={setResponse} />
         ))}
 
-        {/* Notes */}
         <div className="bg-white border border-gray-100 rounded-xl p-4 mb-4">
           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
             Observer Notes
@@ -336,9 +329,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
           />
         </div>
 
-        {saveError && (
-          <p className="text-sm text-red-500 mb-3 px-1">{saveError}</p>
-        )}
+        {saveError && <p className="text-sm text-red-500 mb-3 px-1">{saveError}</p>}
 
         <button
           onClick={handleSave}
@@ -361,9 +352,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
     <div className="space-y-6">
       {/* Start new */}
       <section className="bg-white border border-gray-100 rounded-xl p-5">
-        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">
-          Start New Observation
-        </h2>
+        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Start New Observation</h2>
         {teachers.length === 0 ? (
           <p className="text-sm text-gray-400">No teacher accounts yet. Assign the "teacher" role to a user first.</p>
         ) : (
@@ -377,9 +366,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
                   className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-56"
                 >
                   <option value="">Select teacher…</option>
-                  {teachers.map(t => (
-                    <option key={t.id} value={t.id}>{t.name || t.email}</option>
-                  ))}
+                  {teachers.map(t => <option key={t.id} value={t.id}>{t.name || t.email}</option>)}
                 </select>
               </div>
               <div className="flex flex-col gap-1">
@@ -390,9 +377,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
                   className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
                 >
                   <option value="">Number…</option>
-                  {([1, 2, 3, 4] as const).map(n => (
-                    <option key={n} value={n}>{ORDINALS[n]}</option>
-                  ))}
+                  {([1, 2, 3, 4] as const).map(n => <option key={n} value={n}>{ORDINALS[n]}</option>)}
                 </select>
               </div>
               <div className="flex flex-col gap-1">
@@ -420,9 +405,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
       {/* History */}
       <section>
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
-            Observation History
-          </h2>
+          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Observation History</h2>
           <select
             value={historyTeacherId}
             onChange={e => changeHistoryTeacher(e.target.value)}
@@ -489,18 +472,34 @@ export default function ObservationTab({ teachers, initialObservations, initialR
                           <td className="px-5 py-3 text-center">
                             {hasResponses ? (
                               <span className={`font-semibold ${
-                                score >= 18 ? "text-green-600" :
-                                score >= 14 ? "text-yellow-600" :
-                                "text-red-500"
+                                score >= 18 ? "text-green-600" : score >= 14 ? "text-yellow-600" : "text-red-500"
                               }`}>
                                 {score}/{TOTAL_POINTS}
                               </span>
                             ) : (
-                              <span className="text-gray-300 text-xs">—</span>
+                              <span className="text-xs font-medium text-yellow-700 bg-yellow-50 px-2 py-0.5 rounded-md">
+                                In Progress
+                              </span>
                             )}
                           </td>
                           <td className="px-5 py-3 text-right">
                             <div className="flex items-center justify-end gap-3">
+                              {!hasResponses && (
+                                <button
+                                  onClick={() => {
+                                    openForm({
+                                      id: obs.id,
+                                      teacherId: obs.teacher_id,
+                                      teacherName: teacher?.name || teacher?.email || "Unknown",
+                                      number: obs.observation_number,
+                                      date: obs.date,
+                                    });
+                                  }}
+                                  className="text-xs font-medium text-blue-500 hover:text-blue-700 transition-colors"
+                                >
+                                  Resume
+                                </button>
+                              )}
                               {hasResponses && (
                                 <button
                                   onClick={() => setExpandedId(isExpanded ? null : obs.id)}
@@ -511,7 +510,6 @@ export default function ObservationTab({ teachers, initialObservations, initialR
                               )}
                               <button
                                 onClick={async () => {
-                                  const teacher = teachers.find(t => t.id === obs.teacher_id);
                                   if (!confirm(`Delete ${ORDINALS[obs.observation_number]} observation for ${teacher?.name ?? "this teacher"}?`)) return;
                                   const fd = new FormData();
                                   fd.append("id", obs.id);
@@ -531,25 +529,19 @@ export default function ObservationTab({ teachers, initialObservations, initialR
                         {isExpanded && (
                           <tr className="border-b border-gray-100">
                             <td colSpan={5} className="px-5 py-4 bg-gray-50/60">
-                              {/* Law score chips */}
                               <div className="flex flex-wrap gap-1.5 mb-3">
                                 {lawScores.map(({ law, observed }) => (
                                   <span
                                     key={law.number}
                                     className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
-                                      observed === law.points.length
-                                        ? "bg-green-50 text-green-700"
-                                        : observed === 0
-                                        ? "bg-red-50 text-red-600"
-                                        : "bg-yellow-50 text-yellow-700"
+                                      observed === law.points.length ? "bg-green-50 text-green-700" :
+                                      observed === 0 ? "bg-red-50 text-red-600" : "bg-yellow-50 text-yellow-700"
                                     }`}
                                   >
                                     L{law.number}: {observed}/{law.points.length}
                                   </span>
                                 ))}
                               </div>
-
-                              {/* Not observed points */}
                               {notObservedPoints.length === 0 ? (
                                 <p className="text-xs text-green-600">All applicable points were observed.</p>
                               ) : (
@@ -565,8 +557,6 @@ export default function ObservationTab({ teachers, initialObservations, initialR
                                   </ul>
                                 </div>
                               )}
-
-                              {/* Notes */}
                               {obs.notes && (
                                 <div className="mt-3 pt-3 border-t border-gray-100">
                                   <p className="text-xs font-medium text-gray-500 mb-1">Notes:</p>
@@ -583,13 +573,15 @@ export default function ObservationTab({ teachers, initialObservations, initialR
               </table>
             </div>
 
-            {/* Patterns (only when a teacher is selected and has 2+ observations) */}
             {historyTeacherId && historyObs.length >= 2 && (
               <div>
                 <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
                   Patterns — {teachers.find(t => t.id === historyTeacherId)?.name}
                 </h3>
-                <PatternAnalysis teacherObs={historyObs} allResponses={allResponses} />
+                <PatternAnalysis
+                  teacherObs={historyObs.filter(o => allResponses.some(r => r.observation_id === o.id))}
+                  allResponses={allResponses}
+                />
               </div>
             )}
           </>
