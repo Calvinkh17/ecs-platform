@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { letterGrade, gradeColor } from "@/lib/grades";
 import type { Assignment, Grade, Class, SchoolStudent } from "@/lib/types";
 
@@ -149,6 +150,18 @@ export default function ParentView({ childrenData }: Props) {
             {child.classes.length} {child.classes.length === 1 ? "class" : "classes"}
           </p>
         </div>
+        <Link
+          href={`/print/${child.schoolStudent.id}`}
+          target="_blank"
+          className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"/>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          Print Homework Sheet
+        </Link>
       </div>
 
       {child.classes.length === 0 ? (
