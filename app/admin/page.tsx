@@ -3,17 +3,25 @@ import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AppNav from "@/components/AppNav";
 import AdminTabs from "./AdminTabs";
-import type { SchoolStudent, ParentLink } from "@/lib/types";
+import type { SchoolStudent, ParentLink, Observation, ObservationResponse } from "@/lib/types";
 
 export default async function AdminPage() {
   const me = await getCurrentUser();
   if (!me || me.role !== "admin") redirect("/");
 
   const supabase = await createClient();
-  const [{ data: users }, { data: schoolStudents }, { data: rawLinks }] = await Promise.all([
+  const [
+    { data: users },
+    { data: schoolStudents },
+    { data: rawLinks },
+    { data: observations },
+    { data: observationResponses },
+  ] = await Promise.all([
     supabase.from("users").select("*").order("created_at", { ascending: false }),
     supabase.from("school_students").select("*").order("name"),
     supabase.from("parent_students").select("id, parent_id, student_id, created_at").order("created_at", { ascending: false }),
+    supabase.from("observations").select("*").order("created_at", { ascending: false }),
+    supabase.from("observation_responses").select("*"),
   ]);
 
   const parentLinks: ParentLink[] = (rawLinks ?? []).map((link) => ({
@@ -32,6 +40,8 @@ export default async function AdminPage() {
           users={users ?? []}
           schoolStudents={(schoolStudents as SchoolStudent[]) ?? []}
           initialParentLinks={parentLinks}
+          initialObservations={(observations as Observation[]) ?? []}
+          initialResponses={(observationResponses as ObservationResponse[]) ?? []}
         />
       </main>
     </div>

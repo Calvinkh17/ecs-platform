@@ -38,6 +38,24 @@ export interface Grade {
   created_at: string;
 }
 
+export interface Observation {
+  id: string;
+  teacher_id: string;
+  observer_id: string;
+  observation_number: number;
+  date: string;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface ObservationResponse {
+  id: string;
+  observation_id: string;
+  point_key: string;
+  status: "observed" | "not_observed" | "na";
+  created_at: string;
+}
+
 export interface ParentLink {
   id: string;
   parent_id: string;

@@ -2,7 +2,8 @@
 
 import { useState, useRef } from "react";
 import { assignRole, addSchoolStudent, deleteSchoolStudent, updateSchoolStudent, linkParentStudent, unlinkParentStudent } from "@/app/actions";
-import type { SchoolStudent, ParentLink } from "@/lib/types";
+import type { SchoolStudent, ParentLink, Observation, ObservationResponse } from "@/lib/types";
+import ObservationTab from "./ObservationTab";
 
 const GRADE_LEVELS = ["K","1","2","3","4","5","6","7","8","9","10","11","12","Graduated"];
 const ROLES = ["admin","teacher","parent","student","pending"] as const;
@@ -27,10 +28,13 @@ interface Props {
   users: AppUser[];
   schoolStudents: SchoolStudent[];
   initialParentLinks: ParentLink[];
+  initialObservations: Observation[];
+  initialResponses: ObservationResponse[];
 }
 
-export default function AdminTabs({ meId, users, schoolStudents: initialStudents, initialParentLinks }: Props) {
-  const [tab, setTab] = useState<"users" | "students" | "parents">("users");
+export default function AdminTabs({ meId, users, schoolStudents: initialStudents, initialParentLinks, initialObservations, initialResponses }: Props) {
+  const [tab, setTab] = useState<"users" | "students" | "parents" | "observations">("users");
+  const teacherUsers = users.filter(u => u.role === "teacher");
 
   // Students tab state
   const [gradeFilter, setGradeFilter] = useState("");
@@ -64,8 +68,8 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
   return (
     <div className="space-y-8">
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-100">
-        {(["users", "students", "parents"] as const).map(t => (
+      <div className="flex gap-1 border-b border-gray-100 flex-wrap">
+        {(["users", "students", "parents", "observations"] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -75,7 +79,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                 : "border-transparent text-gray-400 hover:text-gray-700"
             }`}
           >
-            {t === "users" ? `Users (${users.length})` : t === "students" ? `Students (${roster.length})` : `Parents (${links.length})`}
+            {t === "users" ? `Users (${users.length})` : t === "students" ? `Students (${roster.length})` : t === "parents" ? `Parents (${links.length})` : "Observations"}
           </button>
         ))}
       </div>
@@ -418,6 +422,15 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
             )}
           </section>
         </div>
+      )}
+
+      {/* ── Observations tab ── */}
+      {tab === "observations" && (
+        <ObservationTab
+          teachers={teacherUsers}
+          initialObservations={initialObservations}
+          initialResponses={initialResponses}
+        />
       )}
 
       {/* ── Parents tab ── */}

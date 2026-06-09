@@ -114,6 +114,47 @@ export async function unlinkParentStudent(formData: FormData): Promise<{ error?:
   return {};
 }
 
+export async function createObservation(formData: FormData): Promise<{ id?: string; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated." };
+  const teacher_id = formData.get("teacher_id") as string;
+  const observation_number = formData.get("observation_number") as string;
+  const date = formData.get("date") as string;
+  if (!teacher_id || !observation_number || !date) return { error: "Missing required fields." };
+  const { data: obs, error } = await supabase
+    .from("observations")
+    .insert({ teacher_id, observer_id: user.id, observation_number: parseInt(observation_number), date })
+    .select()
+    .single();
+  if (error) return { error: error.message };
+  return { id: obs.id };
+}
+
+export async function saveObservation(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const observation_id = formData.get("observation_id") as string;
+  const notes = formData.get("notes") as string;
+  const responsesJson = formData.get("responses") as string;
+  if (!observation_id) return { error: "Missing observation ID." };
+  const { error: notesError } = await supabase
+    .from("observations")
+    .update({ notes: notes?.trim() || null })
+    .eq("id", observation_id);
+  if (notesError) return { error: notesError.message };
+  const responses: { point_key: string; status: string }[] = JSON.parse(responsesJson || "[]");
+  if (responses.length > 0) {
+    const { error: respError } = await supabase
+      .from("observation_responses")
+      .upsert(
+        responses.map(r => ({ observation_id, point_key: r.point_key, status: r.status })),
+        { onConflict: "observation_id,point_key" }
+      );
+    if (respError) return { error: respError.message };
+  }
+  return {};
+}
+
 export async function addAssignment(formData: FormData) {
   const supabase = await createClient();
   const name = formData.get("name") as string;
