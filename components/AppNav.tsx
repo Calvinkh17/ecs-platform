@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import SignOutButton from "./SignOutButton";
 import AnnouncementNavLink from "./AnnouncementNavLink";
+import ChatNavLink from "./ChatNavLink";
 
 export default async function AppNav({ title }: { title: string }) {
   const me = await getCurrentUser();
@@ -29,6 +30,9 @@ export default async function AppNav({ title }: { title: string }) {
             )}
             {me && me.role !== "pending" && (
               <AnnouncementNavLink userId={me.id} />
+            )}
+            {(me?.role === "admin" || me?.role === "teacher") && (
+              <ChatNavLink userId={me.id} />
             )}
           </nav>
         </div>

@@ -88,3 +88,34 @@ export interface ReadAnnouncement {
   announcement_id: string;
   read_at: string;
 }
+
+export interface ChatChannel {
+  id: string;
+  name: string;
+  description: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface ChannelMember {
+  id: string;
+  channel_id: string;
+  user_id: string;
+  joined_at: string;
+  last_read_at: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  channel_id: string;
+  author_id: string;
+  body: string;
+  created_at: string;
+}
+
+export interface MessageMention {
+  id: string;
+  message_id: string;
+  mentioned_user_id: string;
+  created_at: string;
+}

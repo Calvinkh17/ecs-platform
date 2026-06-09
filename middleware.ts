@@ -83,6 +83,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(roleHome(role), request.url));
   }
 
+  // Protect /chat (admin and teacher only)
+  if (path.startsWith("/chat") && role !== "admin" && role !== "teacher") {
+    return NextResponse.redirect(new URL(roleHome(role), request.url));
+  }
+
   return response;
 }
 

@@ -193,6 +193,55 @@ export async function grantAnnouncementAccess(formData: FormData): Promise<{ err
   return {};
 }
 
+export async function createChannel(formData: FormData): Promise<{ error?: string; id?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated." };
+  const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+  if (!name?.trim()) return { error: "Channel name is required." };
+  const { data: channel, error } = await supabase
+    .from("chat_channels")
+    .insert({ name: name.trim(), description: description?.trim() || null, created_by: user.id })
+    .select("id")
+    .single();
+  if (error) return { error: error.message };
+  await supabase.from("channel_members").insert({ channel_id: channel.id, user_id: user.id });
+  return { id: channel.id };
+}
+
+export async function deleteChannel(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const id = formData.get("id") as string;
+  if (!id) return { error: "Missing ID." };
+  const { error } = await supabase.from("chat_channels").delete().eq("id", id);
+  if (error) return { error: error.message };
+  return {};
+}
+
+export async function addChannelMember(formData: FormData): Promise<{ error?: string; id?: string }> {
+  const supabase = await createClient();
+  const channel_id = formData.get("channel_id") as string;
+  const user_id = formData.get("user_id") as string;
+  if (!channel_id || !user_id) return { error: "Missing required fields." };
+  const { data, error } = await supabase
+    .from("channel_members")
+    .insert({ channel_id, user_id })
+    .select("id")
+    .single();
+  if (error) return { error: error.message };
+  return { id: data.id };
+}
+
+export async function removeChannelMember(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const id = formData.get("id") as string;
+  if (!id) return { error: "Missing ID." };
+  const { error } = await supabase.from("channel_members").delete().eq("id", id);
+  if (error) return { error: error.message };
+  return {};
+}
+
 export async function revokeAnnouncementAccess(formData: FormData): Promise<{ error?: string }> {
   const supabase = await createClient();
   const id = formData.get("id") as string;
