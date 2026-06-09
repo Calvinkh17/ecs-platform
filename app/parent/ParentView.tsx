@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { letterGrade, gradeColor } from "@/lib/grades";
 import type { Assignment, Grade, Class, SchoolStudent } from "@/lib/types";
@@ -107,6 +107,70 @@ function GradeTable({ classes }: { classes: ClassReport[] }) {
   );
 }
 
+const PrintIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 6 2 18 2 18 9"/>
+    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+    <rect x="6" y="14" width="12" height="8"/>
+  </svg>
+);
+
+function PrintDropdown({ childrenData }: { childrenData: ChildData[] }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const allIds = childrenData.map(c => c.schoolStudent.id).join(",");
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+      >
+        <PrintIcon />
+        Print Homework Sheet
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-1 w-56 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-10">
+          {childrenData.map(c => (
+            <Link
+              key={c.schoolStudent.id}
+              href={`/print/${c.schoolStudent.id}`}
+              target="_blank"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+            >
+              <PrintIcon />
+              Print {c.schoolStudent.name}&apos;s Sheet
+            </Link>
+          ))}
+          <div className="border-t border-gray-100" />
+          <Link
+            href={`/print/all?students=${allIds}`}
+            target="_blank"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-4 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
+          >
+            <PrintIcon />
+            Print All Sheets
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ParentView({ childrenData }: Props) {
   const [activeChild, setActiveChild] = useState(0);
 
@@ -150,18 +214,18 @@ export default function ParentView({ childrenData }: Props) {
             {child.classes.length} {child.classes.length === 1 ? "class" : "classes"}
           </p>
         </div>
-        <Link
-          href={`/print/${child.schoolStudent.id}`}
-          target="_blank"
-          className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="6 9 6 2 18 2 18 9"/>
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-            <rect x="6" y="14" width="12" height="8"/>
-          </svg>
-          Print Homework Sheet
-        </Link>
+        {childrenData.length === 1 ? (
+          <Link
+            href={`/print/${child.schoolStudent.id}`}
+            target="_blank"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <PrintIcon />
+            Print Homework Sheet
+          </Link>
+        ) : (
+          <PrintDropdown childrenData={childrenData} />
+        )}
       </div>
 
       {child.classes.length === 0 ? (
