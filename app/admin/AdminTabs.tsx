@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { assignRole, addSchoolStudent, deleteSchoolStudent, updateSchoolStudent, linkParentStudent, unlinkParentStudent } from "@/app/actions";
 import type { SchoolStudent, ParentLink, Observation, ObservationResponse } from "@/lib/types";
 import ObservationTab from "./ObservationTab";
@@ -33,8 +34,23 @@ interface Props {
 }
 
 export default function AdminTabs({ meId, users, schoolStudents: initialStudents, initialParentLinks, initialObservations, initialResponses }: Props) {
-  const [tab, setTab] = useState<"users" | "students" | "parents" | "observations">("users");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const validTabs = ["users", "students", "parents", "observations"] as const;
+  type Tab = typeof validTabs[number];
+  const [tab, setTab] = useState<Tab>(() => {
+    const t = searchParams.get("tab") as Tab;
+    return validTabs.includes(t) ? t : "users";
+  });
   const teacherUsers = users.filter(u => u.role === "teacher");
+
+  function changeTab(t: Tab) {
+    setTab(t);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", t);
+    if (t !== "observations") params.delete("teacher");
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }
 
   // Students tab state
   const [gradeFilter, setGradeFilter] = useState("");
@@ -72,7 +88,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
         {(["users", "students", "parents", "observations"] as const).map(t => (
           <button
             key={t}
-            onClick={() => setTab(t)}
+            onClick={() => changeTab(t)}
             className={`px-4 py-2 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
               tab === t
                 ? "border-gray-900 text-gray-900"

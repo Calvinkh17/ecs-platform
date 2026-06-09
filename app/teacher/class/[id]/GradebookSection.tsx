@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { upsertGrade } from "@/app/actions";
 import { letterGrade, gradeColor } from "@/lib/grades";
 import type { Student, Assignment, Grade } from "@/lib/types";
@@ -73,7 +74,17 @@ function GradeRow({
 }
 
 export default function GradebookSection({ students, assignments, gradeMap }: Props) {
-  const [selected, setSelected] = useState<string>(assignments[0]?.id ?? "");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [selected, setSelected] = useState<string>(() => {
+    const fromUrl = searchParams.get("assignment") ?? "";
+    return assignments.some(a => a.id === fromUrl) ? fromUrl : (assignments[0]?.id ?? "");
+  });
+
+  function selectAssignment(id: string) {
+    setSelected(id);
+    router.replace(`?assignment=${id}`, { scroll: false });
+  }
   const [studentQuery, setStudentQuery] = useState("");
   const [studentSelected, setStudentSelected] = useState<Student | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -153,7 +164,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
             return (
               <li key={a.id}>
                 <button
-                  onClick={() => setSelected(a.id)}
+                  onClick={() => selectAssignment(a.id)}
                   className={`w-full text-left px-4 py-3 border-b border-gray-50 last:border-0 transition-colors ${
                     isActive ? "bg-gray-900 text-white" : "hover:bg-gray-50 text-gray-700"
                   }`}

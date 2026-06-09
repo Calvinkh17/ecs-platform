@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, Fragment } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createObservation, saveObservation, deleteObservation } from "@/app/actions";
 import { RUBRIC, ALL_POINT_KEYS, TOTAL_POINTS } from "@/lib/rubric";
 import type { Observation, ObservationResponse } from "@/lib/types";
@@ -195,9 +196,22 @@ export default function ObservationTab({ teachers, initialObservations, initialR
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState("");
 
-  // History state
-  const [historyTeacherId, setHistoryTeacherId] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // History state — seeded from URL
+  const [historyTeacherId, setHistoryTeacherId] = useState<string>(
+    () => searchParams.get("teacher") ?? ""
+  );
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  function changeHistoryTeacher(id: string) {
+    setHistoryTeacherId(id);
+    setExpandedId(null);
+    const params = new URLSearchParams(searchParams.toString());
+    if (id) { params.set("teacher", id); } else { params.delete("teacher"); }
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }
 
   const totalObserved = ALL_POINT_KEYS.filter(k => responses[k] === "observed").length;
   const pct = Math.round((totalObserved / TOTAL_POINTS) * 100);
@@ -269,8 +283,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
     }));
     setObservations(prev => [newObs, ...prev]);
     setAllResponses(prev => [...prev, ...newResps]);
-    setHistoryTeacherId(activeObs.teacherId);
-    setExpandedId(null);
+    changeHistoryTeacher(activeObs.teacherId);
     setActiveObs(null);
     setView("list");
   }
@@ -412,7 +425,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
           </h2>
           <select
             value={historyTeacherId}
-            onChange={e => { setHistoryTeacherId(e.target.value); setExpandedId(null); }}
+            onChange={e => changeHistoryTeacher(e.target.value)}
             className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
           >
             <option value="">All teachers</option>
