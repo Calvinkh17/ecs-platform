@@ -50,15 +50,15 @@ export async function addSchoolStudent(formData: FormData): Promise<{ error?: st
   const year_joined = formData.get("year_joined") as string;
   const email = formData.get("email") as string;
   const graduating_year = formData.get("graduating_year") as string;
-  if (!name?.trim() || !grade_level || !year_joined) {
-    return { error: `Missing fields: name=${name} grade=${grade_level} year=${year_joined}` };
+  if (!name?.trim() || !grade_level || !year_joined || !graduating_year?.trim()) {
+    return { error: "Name, grade, year joined, and graduating year are all required." };
   }
   const { error } = await supabase.from("school_students").insert({
     name: name.trim(),
     grade_level,
     year_joined: parseInt(year_joined),
     email: email?.trim() || null,
-    graduating_year: graduating_year?.trim() ? parseInt(graduating_year) : null,
+    graduating_year: parseInt(graduating_year),
   });
   if (error) return { error: error.message };
   return {};
@@ -72,7 +72,7 @@ export async function updateSchoolStudent(formData: FormData): Promise<{ error?:
   const year_joined = formData.get("year_joined") as string;
   const email = formData.get("email") as string;
   const graduating_year = formData.get("graduating_year") as string;
-  if (!id || !name?.trim() || !grade_level || !year_joined) return { error: "Missing required fields." };
+  if (!id || !name?.trim() || !grade_level || !year_joined || !graduating_year?.trim()) return { error: "Missing required fields." };
   const { error } = await supabase
     .from("school_students")
     .update({
@@ -80,7 +80,7 @@ export async function updateSchoolStudent(formData: FormData): Promise<{ error?:
       grade_level,
       year_joined: parseInt(year_joined),
       email: email?.trim() || null,
-      graduating_year: graduating_year?.trim() ? parseInt(graduating_year) : null,
+      graduating_year: parseInt(graduating_year),
     })
     .eq("id", id);
   if (error) return { error: error.message };

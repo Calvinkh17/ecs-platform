@@ -187,13 +187,12 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                     setAddError(result.error);
                     return;
                   }
-                  const gyRaw = fd.get("graduating_year") as string;
                   const newStudent: SchoolStudent = {
                     id: crypto.randomUUID(),
                     name: (fd.get("name") as string).trim(),
                     grade_level: fd.get("grade_level") as string,
                     year_joined: parseInt(fd.get("year_joined") as string),
-                    graduating_year: gyRaw?.trim() ? parseInt(gyRaw) : null,
+                    graduating_year: parseInt(fd.get("graduating_year") as string),
                     email: (fd.get("email") as string)?.trim() || null,
                     created_at: new Date().toISOString(),
                   };
@@ -227,7 +226,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">Graduating Year (optional)</label>
-                <input type="number" name="graduating_year" placeholder="2026" min={2000} max={2100} className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-36" />
+                <input type="number" name="graduating_year" placeholder="2026" min={2000} max={2100} required className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-36" />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">Email (optional)</label>
@@ -316,8 +315,8 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                             onChange={e => setEditValues(v => ({ ...v, graduating_year: e.target.value }))}
                             min={2000}
                             max={2100}
-                            placeholder="optional"
                             className="w-24 px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                            required
                           />
                         </td>
                         <td className="px-3 py-2">
@@ -352,7 +351,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                                     name: editValues.name.trim(),
                                     grade_level: editValues.grade_level,
                                     year_joined: parseInt(editValues.year_joined),
-                                    graduating_year: editValues.graduating_year.trim() ? parseInt(editValues.graduating_year) : null,
+                                    graduating_year: parseInt(editValues.graduating_year),
                                     email: editValues.email.trim() || null,
                                   } : r).sort((a, b) => a.name.localeCompare(b.name))
                                 );
@@ -377,7 +376,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                         <td className="px-5 py-3 font-medium text-gray-800">{s.name}</td>
                         <td className="px-5 py-3 text-gray-600">{s.grade_level === "K" ? "Kindergarten" : s.grade_level === "Graduated" ? "Graduated" : `Grade ${s.grade_level}`}</td>
                         <td className="px-5 py-3 text-gray-600">{s.year_joined}</td>
-                        <td className="px-5 py-3 text-gray-600">{s.graduating_year ?? <span className="text-gray-300">—</span>}</td>
+                        <td className="px-5 py-3 text-gray-600">{s.graduating_year}</td>
                         <td className="px-5 py-3 text-gray-400">{s.email ?? "—"}</td>
                         <td className="px-5 py-3 text-right">
                           <div className="flex items-center justify-end gap-3">
