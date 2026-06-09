@@ -8,12 +8,13 @@ interface AppUser { id: string; name: string; email: string; role: string; }
 interface MemberWithName extends ChannelMember { user_name: string; user_email: string; }
 
 interface Props {
+  meId: string;
   users: AppUser[];
   initialChannels: ChatChannel[];
   initialMembers: MemberWithName[];
 }
 
-export default function ChannelsTab({ users, initialChannels, initialMembers }: Props) {
+export default function ChannelsTab({ meId, users, initialChannels, initialMembers }: Props) {
   const [channels, setChannels] = useState<ChatChannel[]>(initialChannels);
   const [members, setMembers] = useState<MemberWithName[]>(initialMembers);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -51,14 +52,26 @@ export default function ChannelsTab({ users, initialChannels, initialMembers }: 
     const result = await createChannel(fd);
     setCreating(false);
     if (result?.error) { setCreateError(result.error); return; }
+    const channelId = result.id ?? crypto.randomUUID();
     const newChannel: ChatChannel = {
-      id: result.id ?? crypto.randomUUID(),
+      id: channelId,
       name: newName.trim(),
       description: newDesc.trim() || null,
-      created_by: null,
+      created_by: meId,
       created_at: new Date().toISOString(),
     };
+    const me = users.find((u) => u.id === meId);
+    const creatorMember: MemberWithName = {
+      id: crypto.randomUUID(),
+      channel_id: channelId,
+      user_id: meId,
+      joined_at: new Date().toISOString(),
+      last_read_at: new Date().toISOString(),
+      user_name: me?.name || me?.email || "Unknown",
+      user_email: me?.email || "",
+    };
     setChannels((prev) => [...prev, newChannel].sort((a, b) => a.name.localeCompare(b.name)));
+    setMembers((prev) => [...prev, creatorMember]);
     setNewName("");
     setNewDesc("");
   }

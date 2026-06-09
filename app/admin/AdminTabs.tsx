@@ -465,6 +465,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
       {/* ── Channels tab ── */}
       {tab === "channels" && (
         <ChannelsTab
+          meId={meId}
           users={users}
           initialChannels={initialChannels}
           initialMembers={initialChannelMembers}

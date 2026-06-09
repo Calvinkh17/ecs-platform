@@ -229,7 +229,10 @@ export async function addChannelMember(formData: FormData): Promise<{ error?: st
     .insert({ channel_id, user_id })
     .select("id")
     .single();
-  if (error) return { error: error.message };
+  if (error) {
+    if (error.code === "23505") return {}; // already a member, not an error
+    return { error: error.message };
+  }
   return { id: data.id };
 }
 
