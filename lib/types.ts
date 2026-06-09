@@ -10,6 +10,7 @@ export interface SchoolStudent {
   grade_level: string;
   email: string | null;
   year_joined: number;
+  graduating_year: number | null;
   created_at: string;
 }
 

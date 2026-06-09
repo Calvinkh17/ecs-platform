@@ -39,7 +39,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
   const [addError, setAddError] = useState("");
   const [roster, setRoster] = useState<SchoolStudent[]>(initialStudents);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState({ name: "", grade_level: "", year_joined: "", email: "" });
+  const [editValues, setEditValues] = useState({ name: "", grade_level: "", year_joined: "", graduating_year: "", email: "" });
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
@@ -187,11 +187,13 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                     setAddError(result.error);
                     return;
                   }
+                  const gyRaw = fd.get("graduating_year") as string;
                   const newStudent: SchoolStudent = {
                     id: crypto.randomUUID(),
                     name: (fd.get("name") as string).trim(),
                     grade_level: fd.get("grade_level") as string,
                     year_joined: parseInt(fd.get("year_joined") as string),
+                    graduating_year: gyRaw?.trim() ? parseInt(gyRaw) : null,
                     email: (fd.get("email") as string)?.trim() || null,
                     created_at: new Date().toISOString(),
                   };
@@ -222,6 +224,10 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">Year Joined</label>
                 <input type="number" name="year_joined" placeholder="2024" min={2000} max={2100} required className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-28" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-gray-400">Graduating Year (optional)</label>
+                <input type="number" name="graduating_year" placeholder="2026" min={2000} max={2100} className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-36" />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">Email (optional)</label>
@@ -266,6 +272,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                       <th className="text-left px-5 py-3 font-medium text-gray-500">Name</th>
                       <th className="text-left px-5 py-3 font-medium text-gray-500">Grade</th>
                       <th className="text-left px-5 py-3 font-medium text-gray-500">Year Joined</th>
+                      <th className="text-left px-5 py-3 font-medium text-gray-500">Graduating Year</th>
                       <th className="text-left px-5 py-3 font-medium text-gray-500">Email</th>
                       <th className="px-5 py-3" />
                     </tr>
@@ -304,6 +311,17 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                         </td>
                         <td className="px-3 py-2">
                           <input
+                            type="number"
+                            value={editValues.graduating_year}
+                            onChange={e => setEditValues(v => ({ ...v, graduating_year: e.target.value }))}
+                            min={2000}
+                            max={2100}
+                            placeholder="optional"
+                            className="w-24 px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                          />
+                        </td>
+                        <td className="px-3 py-2">
+                          <input
                             type="email"
                             value={editValues.email}
                             onChange={e => setEditValues(v => ({ ...v, email: e.target.value }))}
@@ -323,6 +341,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                                 fd.append("name", editValues.name);
                                 fd.append("grade_level", editValues.grade_level);
                                 fd.append("year_joined", editValues.year_joined);
+                                fd.append("graduating_year", editValues.graduating_year);
                                 fd.append("email", editValues.email);
                                 const result = await updateSchoolStudent(fd);
                                 setEditSaving(false);
@@ -333,6 +352,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                                     name: editValues.name.trim(),
                                     grade_level: editValues.grade_level,
                                     year_joined: parseInt(editValues.year_joined),
+                                    graduating_year: editValues.graduating_year.trim() ? parseInt(editValues.graduating_year) : null,
                                     email: editValues.email.trim() || null,
                                   } : r).sort((a, b) => a.name.localeCompare(b.name))
                                 );
@@ -357,6 +377,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                         <td className="px-5 py-3 font-medium text-gray-800">{s.name}</td>
                         <td className="px-5 py-3 text-gray-600">{s.grade_level === "K" ? "Kindergarten" : s.grade_level === "Graduated" ? "Graduated" : `Grade ${s.grade_level}`}</td>
                         <td className="px-5 py-3 text-gray-600">{s.year_joined}</td>
+                        <td className="px-5 py-3 text-gray-600">{s.graduating_year ?? <span className="text-gray-300">—</span>}</td>
                         <td className="px-5 py-3 text-gray-400">{s.email ?? "—"}</td>
                         <td className="px-5 py-3 text-right">
                           <div className="flex items-center justify-end gap-3">
@@ -368,6 +389,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                                   name: s.name,
                                   grade_level: s.grade_level,
                                   year_joined: String(s.year_joined),
+                                  graduating_year: s.graduating_year != null ? String(s.graduating_year) : "",
                                   email: s.email ?? "",
                                 });
                                 setEditError("");
