@@ -18,7 +18,7 @@ export default async function AnnouncementsPage() {
     { data: users },
     { data: myAccess },
   ] = await Promise.all([
-    supabase.from("announcements").select("*").order("created_at", { ascending: false }),
+    supabase.from("announcements").select("*").order("created_at", { ascending: false }).range(0, 19),
     supabase.from("users").select("id, name, email"),
     supabase.from("announcement_access").select("*").eq("user_id", me.id).maybeSingle(),
   ]);

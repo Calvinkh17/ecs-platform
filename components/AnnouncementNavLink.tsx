@@ -15,14 +15,8 @@ export default function AnnouncementNavLink({ userId }: { userId: string }) {
     const supabase = createClient();
 
     async function fetchCount() {
-      const [{ count: total }, { count: read }] = await Promise.all([
-        supabase.from("announcements").select("*", { count: "exact", head: true }),
-        supabase
-          .from("read_announcements")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", userId),
-      ]);
-      setUnread(Math.max(0, (total ?? 0) - (read ?? 0)));
+      const { data } = await supabase.rpc("get_unread_announcement_count");
+      setUnread(data ?? 0);
     }
 
     fetchCount();

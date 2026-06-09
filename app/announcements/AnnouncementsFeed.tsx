@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { postAnnouncement } from "@/app/actions";
 
+const PAGE_SIZE = 20;
+
 interface AnnouncementItem {
   id: string;
   author_id: string;
@@ -36,6 +38,8 @@ function timeAgo(dateStr: string): string {
 
 export default function AnnouncementsFeed({ initialAnnouncements, userNames, canSend, myId }: Props) {
   const [announcements, setAnnouncements] = useState<AnnouncementItem[]>(initialAnnouncements);
+  const [hasMore, setHasMore] = useState(initialAnnouncements.length === PAGE_SIZE);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [posting, setPosting] = useState(false);
@@ -80,6 +84,32 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
 
     return () => { supabase.removeChannel(channel); };
   }, [myId]);
+
+  async function loadMore() {
+    const cursor = announcements[announcements.length - 1]?.created_at;
+    if (!cursor) return;
+    setLoadingMore(true);
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("announcements")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .lt("created_at", cursor)
+      .limit(PAGE_SIZE);
+    const items: AnnouncementItem[] = (data ?? []).map((a: { id: string; author_id: string; title: string; body: string; created_at: string }) => ({
+      ...a,
+      author_name: userNamesRef.current[a.author_id] ?? "Unknown",
+    }));
+    setAnnouncements(prev => [...prev, ...items]);
+    setHasMore(items.length === PAGE_SIZE);
+    if (items.length > 0) {
+      supabase.from("read_announcements").upsert(
+        items.map(a => ({ user_id: myId, announcement_id: a.id })),
+        { onConflict: "user_id,announcement_id", ignoreDuplicates: true }
+      );
+    }
+    setLoadingMore(false);
+  }
 
   async function handlePost(e: React.FormEvent) {
     e.preventDefault();
@@ -138,29 +168,42 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
 
       <section>
         <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-          Announcements ({announcements.length})
+          Announcements ({announcements.length}{hasMore ? "+" : ""})
         </h2>
         {announcements.length === 0 ? (
           <div className="text-center py-12 text-gray-400 bg-white rounded-xl border border-gray-100 text-sm">
             No announcements yet.
           </div>
         ) : (
-          <div className="space-y-3">
-            {announcements.map(a => (
-              <div key={a.id} className="bg-white border border-gray-100 rounded-xl p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <h3 className="font-semibold text-gray-900 text-base">{a.title}</h3>
-                  <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5">
-                    {timeAgo(a.created_at)}
-                  </span>
+          <>
+            <div className="space-y-3">
+              {announcements.map(a => (
+                <div key={a.id} className="bg-white border border-gray-100 rounded-xl p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <h3 className="font-semibold text-gray-900 text-base">{a.title}</h3>
+                    <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5">
+                      {timeAgo(a.created_at)}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                    {a.body}
+                  </p>
+                  <p className="mt-3 text-xs text-gray-400">Posted by {a.author_name}</p>
                 </div>
-                <p className="mt-2 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {a.body}
-                </p>
-                <p className="mt-3 text-xs text-gray-400">Posted by {a.author_name}</p>
+              ))}
+            </div>
+            {hasMore && (
+              <div className="mt-4 text-center">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="px-5 py-2 border border-gray-200 text-sm text-gray-600 font-medium rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  {loadingMore ? "Loading…" : "Load More"}
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </section>
     </div>
