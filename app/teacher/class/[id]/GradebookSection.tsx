@@ -255,7 +255,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
           </div>
           {visibleStudents.map((s) => (
             <GradeRow
-              key={s.id}
+              key={`${s.id}-${assignment.id}`}
               student={s}
               assignment={assignment}
               initialScore={gradeMap[s.id]?.[assignment.id]?.score ?? null}
