@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import SignOutButton from "./SignOutButton";
+import AnnouncementNavLink from "./AnnouncementNavLink";
 
 export default async function AppNav({ title }: { title: string }) {
   const me = await getCurrentUser();
@@ -25,6 +26,9 @@ export default async function AppNav({ title }: { title: string }) {
               <Link href="/admin" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
                 Admin
               </Link>
+            )}
+            {me && me.role !== "pending" && (
+              <AnnouncementNavLink userId={me.id} />
             )}
           </nav>
         </div>

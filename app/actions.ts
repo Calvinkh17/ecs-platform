@@ -164,6 +164,44 @@ export async function saveObservation(formData: FormData): Promise<{ error?: str
   return {};
 }
 
+export async function postAnnouncement(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated." };
+  const title = formData.get("title") as string;
+  const body = formData.get("body") as string;
+  if (!title?.trim() || !body?.trim()) return { error: "Title and body are required." };
+  const { error } = await supabase.from("announcements").insert({
+    author_id: user.id,
+    title: title.trim(),
+    body: body.trim(),
+  });
+  if (error) return { error: error.message };
+  return {};
+}
+
+export async function grantAnnouncementAccess(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const user_id = formData.get("user_id") as string;
+  const expires_at = formData.get("expires_at") as string;
+  if (!user_id) return { error: "Select a user." };
+  const { error } = await supabase.from("announcement_access").upsert(
+    { user_id, expires_at: expires_at?.trim() || null, can_send: true },
+    { onConflict: "user_id" }
+  );
+  if (error) return { error: error.message };
+  return {};
+}
+
+export async function revokeAnnouncementAccess(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const id = formData.get("id") as string;
+  if (!id) return { error: "Missing ID." };
+  const { error } = await supabase.from("announcement_access").delete().eq("id", id);
+  if (error) return { error: error.message };
+  return {};
+}
+
 export async function addAssignment(formData: FormData) {
   const supabase = await createClient();
   const name = formData.get("name") as string;

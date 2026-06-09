@@ -3,7 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AppNav from "@/components/AppNav";
 import AdminTabs from "./AdminTabs";
-import type { SchoolStudent, ParentLink, Observation, ObservationResponse } from "@/lib/types";
+import type { SchoolStudent, ParentLink, Observation, ObservationResponse, AnnouncementAccess } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -18,12 +18,14 @@ export default async function AdminPage() {
     { data: rawLinks },
     { data: observations },
     { data: observationResponses },
+    { data: announcementAccess },
   ] = await Promise.all([
     supabase.from("users").select("*").order("created_at", { ascending: false }),
     supabase.from("school_students").select("*").order("name"),
     supabase.from("parent_students").select("id, parent_id, student_id, created_at").order("created_at", { ascending: false }),
     supabase.from("observations").select("*").order("created_at", { ascending: false }),
     supabase.from("observation_responses").select("*"),
+    supabase.from("announcement_access").select("*").order("created_at", { ascending: false }),
   ]);
 
   const parentLinks: ParentLink[] = (rawLinks ?? []).map((link) => ({
@@ -44,6 +46,7 @@ export default async function AdminPage() {
           initialParentLinks={parentLinks}
           initialObservations={(observations as Observation[]) ?? []}
           initialResponses={(observationResponses as ObservationResponse[]) ?? []}
+          initialAnnouncementAccess={(announcementAccess as AnnouncementAccess[]) ?? []}
         />
       </main>
     </div>

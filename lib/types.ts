@@ -65,3 +65,26 @@ export interface ParentLink {
   student_name: string;
   created_at: string;
 }
+
+export interface Announcement {
+  id: string;
+  author_id: string;
+  title: string;
+  body: string;
+  created_at: string;
+}
+
+export interface AnnouncementAccess {
+  id: string;
+  user_id: string;
+  expires_at: string | null;
+  can_send: boolean;
+  created_at: string;
+}
+
+export interface ReadAnnouncement {
+  id: string;
+  user_id: string;
+  announcement_id: string;
+  read_at: string;
+}

@@ -3,8 +3,9 @@
 import { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { assignRole, addSchoolStudent, deleteSchoolStudent, updateSchoolStudent, linkParentStudent, unlinkParentStudent } from "@/app/actions";
-import type { SchoolStudent, ParentLink, Observation, ObservationResponse } from "@/lib/types";
+import type { SchoolStudent, ParentLink, Observation, ObservationResponse, AnnouncementAccess } from "@/lib/types";
 import ObservationTab from "./ObservationTab";
+import AnnouncementAccessTab from "./AnnouncementAccessTab";
 
 const GRADE_LEVELS = ["K","1","2","3","4","5","6","7","8","9","10","11","12","Graduated"];
 const ROLES = ["admin","teacher","parent","student","pending"] as const;
@@ -31,12 +32,13 @@ interface Props {
   initialParentLinks: ParentLink[];
   initialObservations: Observation[];
   initialResponses: ObservationResponse[];
+  initialAnnouncementAccess: AnnouncementAccess[];
 }
 
-export default function AdminTabs({ meId, users, schoolStudents: initialStudents, initialParentLinks, initialObservations, initialResponses }: Props) {
+export default function AdminTabs({ meId, users, schoolStudents: initialStudents, initialParentLinks, initialObservations, initialResponses, initialAnnouncementAccess }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const validTabs = ["users", "students", "parents", "observations"] as const;
+  const validTabs = ["users", "students", "parents", "observations", "announcements"] as const;
   type Tab = typeof validTabs[number];
   const [tab, setTab] = useState<Tab>(() => {
     const t = searchParams.get("tab") as Tab;
@@ -85,7 +87,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
     <div className="space-y-8">
       {/* Tabs */}
       <div className="flex gap-1 border-b border-gray-100 flex-wrap">
-        {(["users", "students", "parents", "observations"] as const).map(t => (
+        {(["users", "students", "parents", "observations", "announcements"] as const).map(t => (
           <button
             key={t}
             onClick={() => changeTab(t)}
@@ -95,7 +97,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                 : "border-transparent text-gray-400 hover:text-gray-700"
             }`}
           >
-            {t === "users" ? `Users (${users.length})` : t === "students" ? `Students (${roster.length})` : t === "parents" ? `Parents (${links.length})` : "Observations"}
+            {t === "users" ? `Users (${users.length})` : t === "students" ? `Students (${roster.length})` : t === "parents" ? `Parents (${links.length})` : t === "observations" ? "Observations" : "Announcements"}
           </button>
         ))}
       </div>
@@ -446,6 +448,14 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
           teachers={teacherUsers}
           initialObservations={initialObservations}
           initialResponses={initialResponses}
+        />
+      )}
+
+      {/* ── Announcements tab ── */}
+      {tab === "announcements" && (
+        <AnnouncementAccessTab
+          users={users}
+          initialAccess={initialAnnouncementAccess}
         />
       )}
 
