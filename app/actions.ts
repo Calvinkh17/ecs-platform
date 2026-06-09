@@ -131,6 +131,15 @@ export async function createObservation(formData: FormData): Promise<{ id?: stri
   return { id: obs.id };
 }
 
+export async function deleteObservation(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const id = formData.get("id") as string;
+  if (!id) return { error: "Missing ID." };
+  const { error } = await supabase.from("observations").delete().eq("id", id);
+  if (error) return { error: error.message };
+  return {};
+}
+
 export async function saveObservation(formData: FormData): Promise<{ error?: string }> {
   const supabase = await createClient();
   const observation_id = formData.get("observation_id") as string;

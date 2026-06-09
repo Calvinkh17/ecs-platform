@@ -5,6 +5,8 @@ import AppNav from "@/components/AppNav";
 import AdminTabs from "./AdminTabs";
 import type { SchoolStudent, ParentLink, Observation, ObservationResponse } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPage() {
   const me = await getCurrentUser();
   if (!me || me.role !== "admin") redirect("/");

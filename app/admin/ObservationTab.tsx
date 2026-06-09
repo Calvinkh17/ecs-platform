@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Fragment } from "react";
-import { createObservation, saveObservation } from "@/app/actions";
+import { createObservation, saveObservation, deleteObservation } from "@/app/actions";
 import { RUBRIC, ALL_POINT_KEYS, TOTAL_POINTS } from "@/lib/rubric";
 import type { Observation, ObservationResponse } from "@/lib/types";
 
@@ -487,14 +487,31 @@ export default function ObservationTab({ teachers, initialObservations, initialR
                             )}
                           </td>
                           <td className="px-5 py-3 text-right">
-                            {hasResponses && (
+                            <div className="flex items-center justify-end gap-3">
+                              {hasResponses && (
+                                <button
+                                  onClick={() => setExpandedId(isExpanded ? null : obs.id)}
+                                  className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
+                                >
+                                  {isExpanded ? "Hide" : "Details"}
+                                </button>
+                              )}
                               <button
-                                onClick={() => setExpandedId(isExpanded ? null : obs.id)}
-                                className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
+                                onClick={async () => {
+                                  const teacher = teachers.find(t => t.id === obs.teacher_id);
+                                  if (!confirm(`Delete ${ORDINALS[obs.observation_number]} observation for ${teacher?.name ?? "this teacher"}?`)) return;
+                                  const fd = new FormData();
+                                  fd.append("id", obs.id);
+                                  await deleteObservation(fd);
+                                  setObservations(prev => prev.filter(o => o.id !== obs.id));
+                                  setAllResponses(prev => prev.filter(r => r.observation_id !== obs.id));
+                                  if (expandedId === obs.id) setExpandedId(null);
+                                }}
+                                className="text-xs text-red-400 hover:text-red-600 transition-colors"
                               >
-                                {isExpanded ? "Hide" : "Details"}
+                                Delete
                               </button>
-                            )}
+                            </div>
                           </td>
                         </tr>
 
