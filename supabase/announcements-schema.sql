@@ -66,12 +66,9 @@ create policy "read_announcements_own_all" on public.read_announcements
   with check (user_id = auth.uid());
 
 -- Grants
-grant all on public.announcements to authenticated;
-grant all on public.announcements to anon;
-grant all on public.announcement_access to authenticated;
-grant all on public.announcement_access to anon;
-grant all on public.read_announcements to authenticated;
-grant all on public.read_announcements to anon;
+grant select, insert, update, delete on public.announcements         to authenticated;
+grant select, insert, update, delete on public.announcement_access   to authenticated;
+grant select, insert, update, delete on public.read_announcements    to authenticated;
 
 -- Enable realtime (run these in Supabase SQL editor or via dashboard)
 alter publication supabase_realtime add table public.announcements;

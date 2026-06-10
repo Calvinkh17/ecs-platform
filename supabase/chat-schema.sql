@@ -135,14 +135,10 @@ create policy "message_mentions_insert_member" on public.message_mentions
 -- Grants
 -- ─────────────────────────────────────────────────────────────
 
-grant all on public.chat_channels to authenticated;
-grant all on public.chat_channels to anon;
-grant all on public.channel_members to authenticated;
-grant all on public.channel_members to anon;
-grant all on public.chat_messages to authenticated;
-grant all on public.chat_messages to anon;
-grant all on public.message_mentions to authenticated;
-grant all on public.message_mentions to anon;
+grant select, insert, update, delete on public.chat_channels     to authenticated;
+grant select, insert, update, delete on public.channel_members   to authenticated;
+grant select, insert, update, delete on public.chat_messages     to authenticated;
+grant select, insert, update, delete on public.message_mentions  to authenticated;
 
 -- ─────────────────────────────────────────────────────────────
 -- Indexes

@@ -50,7 +50,5 @@ create policy "observation_responses_teacher_select" on public.observation_respo
   );
 
 -- Grants
-grant all on public.observations to authenticated;
-grant all on public.observations to anon;
-grant all on public.observation_responses to authenticated;
-grant all on public.observation_responses to anon;
+grant select, insert, update, delete on public.observations          to authenticated;
+grant select, insert, update, delete on public.observation_responses to authenticated;

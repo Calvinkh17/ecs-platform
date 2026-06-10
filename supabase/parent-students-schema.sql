@@ -18,8 +18,7 @@ create policy "parent_students_delete_admin" on public.parent_students for delet
 create policy "parent_students_select_parent" on public.parent_students for select to authenticated using (auth.uid() = parent_id);
 
 -- Grants
-grant all on public.parent_students to authenticated;
-grant all on public.parent_students to anon;
+grant select, insert, update, delete on public.parent_students to authenticated;
 
 -- Allow parents to read grades for their linked students only
 create policy "grades_select_parent" on public.grades for select to authenticated
