@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import { createClient } from "@/lib/supabase/client";
 import { signOut } from "@/app/actions";
 
@@ -78,6 +79,57 @@ function ChevronRightIcon() {
     </svg>
   );
 }
+function SunIcon() {
+  return (
+    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+  );
+}
+function MoonIcon() {
+  return (
+    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  );
+}
+
+// ── Theme toggle ──────────────────────────────────────────────────────
+function ThemeToggle({ collapsed }: { collapsed: boolean }) {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+
+  const isDark = theme === "dark";
+  return (
+    <button
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      title={collapsed ? (isDark ? "Switch to light mode" : "Switch to dark mode") : undefined}
+      className="flex items-center justify-center w-8 h-8 rounded-lg text-sidebar-muted hover:text-sidebar-text hover:bg-white/5 transition-colors flex-shrink-0"
+    >
+      {isDark ? <SunIcon /> : <MoonIcon />}
+    </button>
+  );
+}
+
+// ── Badge pill ────────────────────────────────────────────────────────
+function NotifBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
 
 // ── Types ─────────────────────────────────────────────────────────────
 interface NavItem {
@@ -96,17 +148,7 @@ interface SidebarNavProps {
   onNavClick?: () => void;
 }
 
-// ── Badge pill ────────────────────────────────────────────────────────
-function Badge({ count }: { count: number }) {
-  if (count <= 0) return null;
-  return (
-    <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
-      {count > 99 ? "99+" : count}
-    </span>
-  );
-}
-
-// ── Shared nav + footer (rendered in both desktop and mobile) ─────────
+// ── Shared nav + footer ───────────────────────────────────────────────
 function SidebarNav({ navItems, pathname, collapsed, userName, onNavClick }: SidebarNavProps) {
   return (
     <>
@@ -124,21 +166,20 @@ function SidebarNav({ navItems, pathname, collapsed, userName, onNavClick }: Sid
               onClick={onNavClick}
               title={collapsed ? item.label : undefined}
               className={[
-                "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
-                collapsed ? "justify-center" : "",
+                "relative flex items-center gap-3 text-sm font-medium transition-all rounded-md",
+                collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2.5",
                 isActive
-                  ? "bg-gold text-white"
-                  : "text-sidebar-dim hover:text-sidebar-text hover:bg-sidebar-raised",
+                  ? "bg-sidebar-active/15 text-sidebar-text border-l-[3px] border-sidebar-active !pl-[9px]"
+                  : "text-sidebar-muted hover:text-sidebar-text hover:bg-white/5 border-l-[3px] border-transparent",
               ].join(" ")}
             >
               <item.icon size={17} />
               {!collapsed && (
                 <>
                   <span className="flex-1 truncate">{item.label}</span>
-                  {visibleBadge > 0 && <Badge count={visibleBadge} />}
+                  {visibleBadge > 0 && <NotifBadge count={visibleBadge} />}
                 </>
               )}
-              {/* collapsed dot indicator */}
               {collapsed && visibleBadge > 0 && (
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500" />
               )}
@@ -148,24 +189,22 @@ function SidebarNav({ navItems, pathname, collapsed, userName, onNavClick }: Sid
       </nav>
 
       {/* User footer */}
-      <div className="border-t border-sidebar-border px-2 py-3">
-        <div className={`flex items-center gap-3 px-2 ${collapsed ? "justify-center" : ""}`}>
-          <div className="w-8 h-8 rounded-full bg-sidebar-raised flex items-center justify-center text-sm font-bold text-sidebar-text flex-shrink-0 select-none">
+      <div className="border-t border-white/10 px-2 py-3">
+        <div className={`flex items-center gap-2 px-1 ${collapsed ? "justify-center flex-col" : ""}`}>
+          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold text-sidebar-text flex-shrink-0 select-none">
             {userName ? userName.charAt(0).toUpperCase() : "?"}
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-sidebar-text truncate leading-tight">{userName}</p>
               <form action={signOut}>
-                <button
-                  type="submit"
-                  className="text-xs text-sidebar-dim hover:text-sidebar-text transition-colors"
-                >
+                <button type="submit" className="text-xs text-sidebar-muted hover:text-sidebar-text transition-colors">
                   Sign out
                 </button>
               </form>
             </div>
           )}
+          <ThemeToggle collapsed={collapsed} />
         </div>
       </div>
     </>
@@ -221,7 +260,6 @@ export default function AppSidebarClient({ role, userName, userId, title }: Prop
     return () => { supabase.removeChannel(ch); };
   }, [userId, role]);
 
-  // Build role-based nav items
   const navItems: NavItem[] = [];
   if (role === "admin" || role === "teacher") {
     navItems.push({ href: "/teacher", label: "Classes", icon: BookIcon, matchPrefix: true });
@@ -233,25 +271,14 @@ export default function AppSidebarClient({ role, userName, userId, title }: Prop
     navItems.push({ href: "/admin", label: "Admin Panel", icon: ShieldIcon });
   }
   if (role !== "pending") {
-    navItems.push({
-      href: "/announcements",
-      label: "Announcements",
-      icon: BellIcon,
-      badge: announceBadge,
-    });
+    navItems.push({ href: "/announcements", label: "Announcements", icon: BellIcon, badge: announceBadge });
   }
   if (role === "admin" || role === "teacher") {
-    navItems.push({
-      href: "/chat",
-      label: "Staff Chat",
-      icon: ChatIcon,
-      badge: chatBadge,
-      matchPrefix: true,
-    });
+    navItems.push({ href: "/chat", label: "Staff Chat", icon: ChatIcon, badge: chatBadge, matchPrefix: true });
   }
 
   const appName = (
-    <span className="font-heading font-semibold text-sidebar-text tracking-wide text-sm select-none">
+    <span className="font-serif font-bold text-sidebar-text tracking-tight text-sm select-none">
       ECS Platform
     </span>
   );
@@ -266,36 +293,30 @@ export default function AppSidebarClient({ role, userName, userId, title }: Prop
           collapsed ? "w-16" : "w-64",
         ].join(" ")}
       >
-        {/* Header with collapse toggle */}
-        <div className={`flex items-center px-4 py-5 border-b border-sidebar-border ${collapsed ? "justify-center" : "justify-between"}`}>
+        <div className={`flex items-center px-4 py-5 border-b border-white/10 ${collapsed ? "justify-center" : "justify-between"}`}>
           {!collapsed && appName}
           <button
             onClick={() => setCollapsed((c) => !c)}
-            className="flex items-center justify-center w-7 h-7 rounded-md text-sidebar-dim hover:text-sidebar-text hover:bg-sidebar-raised transition-colors"
+            className="flex items-center justify-center w-7 h-7 rounded-md text-sidebar-muted hover:text-sidebar-text hover:bg-white/5 transition-colors"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </button>
         </div>
 
-        <SidebarNav
-          navItems={navItems}
-          pathname={pathname}
-          collapsed={collapsed}
-          userName={userName}
-        />
+        <SidebarNav navItems={navItems} pathname={pathname} collapsed={collapsed} userName={userName} />
       </div>
 
-      {/* ── Mobile top bar (fixed) ───────────────────────────── */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-sidebar flex items-center px-4 gap-3 shadow-sm">
+      {/* ── Mobile top bar ───────────────────────────────────── */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-sidebar flex items-center px-4 gap-3 shadow-sm border-b border-white/10">
         <button
           onClick={() => setMobileOpen(true)}
-          className="flex items-center justify-center w-9 h-9 rounded-lg text-sidebar-dim hover:text-sidebar-text transition-colors"
+          className="flex items-center justify-center w-9 h-9 rounded-lg text-sidebar-muted hover:text-sidebar-text transition-colors"
           aria-label="Open menu"
         >
           <MenuIcon />
         </button>
-        <span className="font-heading font-semibold text-sidebar-text text-sm truncate">{title}</span>
+        <span className="font-serif font-bold text-sidebar-text text-sm truncate">{title}</span>
       </div>
 
       {/* ── Mobile overlay ───────────────────────────────────── */}
@@ -305,10 +326,7 @@ export default function AppSidebarClient({ role, userName, userId, title }: Prop
           mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
         ].join(" ")}
       >
-        {/* Backdrop */}
         <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" onClick={() => setMobileOpen(false)} />
-
-        {/* Drawer */}
         <div
           className={[
             "absolute left-0 top-0 bottom-0 w-72 bg-sidebar flex flex-col shadow-2xl",
@@ -316,24 +334,17 @@ export default function AppSidebarClient({ role, userName, userId, title }: Prop
             mobileOpen ? "translate-x-0" : "-translate-x-full",
           ].join(" ")}
         >
-          <div className="flex items-center justify-between px-4 py-5 border-b border-sidebar-border">
+          <div className="flex items-center justify-between px-4 py-5 border-b border-white/10">
             {appName}
             <button
               onClick={() => setMobileOpen(false)}
-              className="flex items-center justify-center w-7 h-7 rounded-md text-sidebar-dim hover:text-sidebar-text hover:bg-sidebar-raised transition-colors"
+              className="flex items-center justify-center w-7 h-7 rounded-md text-sidebar-muted hover:text-sidebar-text hover:bg-white/5 transition-colors"
               aria-label="Close menu"
             >
               <XIcon />
             </button>
           </div>
-
-          <SidebarNav
-            navItems={navItems}
-            pathname={pathname}
-            collapsed={false}
-            userName={userName}
-            onNavClick={() => setMobileOpen(false)}
-          />
+          <SidebarNav navItems={navItems} pathname={pathname} collapsed={false} userName={userName} onNavClick={() => setMobileOpen(false)} />
         </div>
       </div>
     </>

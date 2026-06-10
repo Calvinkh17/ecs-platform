@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { createClass } from "@/app/actions";
 import DeleteClassButton from "./DeleteClassButton";
 import AppNav from "@/components/AppNav";
+import { SectionLabel } from "@/components/ui/SectionLabel";
 import type { Class } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +21,6 @@ export default async function TeacherDashboard() {
   if (!isAdmin) query = query.eq("teacher_id", me.id);
   const { data: classes } = await query;
 
-  // For admin: fetch all staff so we can show the assigned teacher name
   let teacherMap: Record<string, string> = {};
   if (isAdmin) {
     const { data: staff } = await supabase
@@ -36,20 +36,18 @@ export default async function TeacherDashboard() {
     <AppNav title="Classes">
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-8">
         <section className="card rounded-xl p-5">
-          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-            New Class
-          </h2>
+          <SectionLabel>New Class</SectionLabel>
           <form action={createClass} className="flex gap-3">
             <input
               type="text"
               name="name"
               placeholder="Class name (e.g. Algebra I – Period 3)"
               required
-              className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-shadow"
+              className="flex-1 px-3 h-9 rounded-md border border-border bg-surface-raised text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/40 transition-colors"
             />
             <button
               type="submit"
-              className="px-5 py-2.5 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light active:scale-95 transition-all"
+              className="px-4 h-9 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-hover active:scale-95 transition-all"
             >
               Create
             </button>
@@ -57,36 +55,34 @@ export default async function TeacherDashboard() {
         </section>
 
         <section>
-          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-            {isAdmin
-              ? `All Classes (${classes?.length ?? 0})`
-              : `Your Classes (${classes?.length ?? 0})`}
-          </h2>
+          <SectionLabel>
+            {isAdmin ? `All Classes (${classes?.length ?? 0})` : `Your Classes (${classes?.length ?? 0})`}
+          </SectionLabel>
           {!classes?.length ? (
             <div className="text-center py-16 card rounded-xl">
-              <svg className="mx-auto mb-3 text-gray-300" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="mx-auto mb-3 text-muted" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
                 <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
               </svg>
-              <p className="text-sm font-medium text-gray-400">No classes yet</p>
-              <p className="text-xs text-gray-300 mt-1">Create your first class using the form above.</p>
+              <p className="text-sm font-medium text-secondary">No classes yet</p>
+              <p className="text-xs text-muted mt-1">Create your first class using the form above.</p>
             </div>
           ) : (
             <ul className="space-y-2">
               {(classes as Class[]).map((cls) => (
                 <li
                   key={cls.id}
-                  className="card rounded-xl flex items-center justify-between px-5 py-4 hover:shadow-md transition-all duration-150"
+                  className="card rounded-xl flex items-center justify-between px-5 py-4 hover:shadow-elevated transition-all duration-150"
                 >
                   <div className="flex-1 min-w-0 mr-4">
                     <Link
                       href={`/teacher/class/${cls.id}`}
-                      className="font-medium text-gray-900 hover:text-forest transition-colors"
+                      className="font-medium text-primary hover:text-accent transition-colors"
                     >
                       {cls.name}
                     </Link>
                     {isAdmin && (
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-muted mt-0.5">
                         {cls.teacher_id
                           ? (teacherMap[cls.teacher_id] ?? "Unknown")
                           : <span className="text-amber-500">Unassigned</span>}
@@ -94,12 +90,12 @@ export default async function TeacherDashboard() {
                     )}
                   </div>
                   <div className="flex items-center gap-4 flex-shrink-0">
-                    <span className="text-xs text-gray-300">
+                    <span className="text-xs text-muted">
                       {new Date(cls.created_at).toLocaleDateString()}
                     </span>
                     <Link
                       href={`/teacher/class/${cls.id}`}
-                      className="text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors flex items-center gap-1"
+                      className="text-sm font-medium text-muted hover:text-primary transition-colors flex items-center gap-1"
                     >
                       Open
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>

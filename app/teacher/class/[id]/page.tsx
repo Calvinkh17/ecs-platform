@@ -8,6 +8,7 @@ import AppNav from "@/components/AppNav";
 import DeleteStudentButton from "./DeleteStudentButton";
 import DeleteAssignmentButton from "./DeleteAssignmentButton";
 import AddStudentDropdown from "./AddStudentDropdown";
+import { SectionLabel } from "@/components/ui/SectionLabel";
 import type { Class, Student, Assignment, Grade, SchoolStudent } from "@/lib/types";
 
 export default async function ClassPage({ params }: { params: Promise<{ id: string }> }) {
@@ -51,33 +52,29 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
         {/* Add Student + Add Assignment */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <section className="card rounded-xl p-5">
-            <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-              Add Student
-            </h2>
+            <SectionLabel>Add Student</SectionLabel>
             <AddStudentDropdown classId={id} rosterStudents={availableRoster} />
             {students?.length ? (
-              <ul className="mt-4 divide-y divide-gray-50 border border-gray-100 rounded-lg overflow-hidden">
+              <ul className="mt-4 divide-y divide-border border border-border rounded-lg overflow-hidden">
                 {(students as Student[]).map((s) => (
-                  <li key={s.id} className="text-sm text-gray-700 px-3 py-2.5 flex items-center justify-between gap-2 hover:bg-gray-50/60 transition-colors">
+                  <li key={s.id} className="text-sm px-3 py-2.5 flex items-center justify-between gap-2 hover:bg-surface transition-colors">
                     <span className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-400 flex-shrink-0 select-none">
+                      <span className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-[10px] font-bold text-accent flex-shrink-0 select-none">
                         {s.name.charAt(0).toUpperCase()}
                       </span>
-                      <span className="font-medium text-gray-800">{s.name}</span>
+                      <span className="font-medium text-primary">{s.name}</span>
                     </span>
                     <DeleteStudentButton id={s.id} name={s.name} />
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="mt-4 text-xs text-gray-400 py-3 text-center border border-dashed border-gray-200 rounded-lg">No students enrolled yet — add one above.</p>
+              <p className="mt-4 text-xs text-muted py-3 text-center border border-dashed border-border rounded-lg">No students enrolled yet — add one above.</p>
             )}
           </section>
 
           <section className="card rounded-xl p-5">
-            <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-              Add Assignment
-            </h2>
+            <SectionLabel>Add Assignment</SectionLabel>
             <form action={addAssignment} className="space-y-2">
               <input type="hidden" name="class_id" value={id} />
               <input
@@ -85,30 +82,30 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
                 name="name"
                 placeholder="Assignment name"
                 required
-                className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
+                className="w-full px-3 h-9 rounded-md border border-border bg-surface-raised text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/40 transition-colors"
               />
               <div className="flex gap-2">
                 <input
                   type="date"
                   name="due_date"
                   required
-                  className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
+                  className="flex-1 px-3 h-9 rounded-md border border-border bg-surface-raised text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent/40 transition-colors"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light active:scale-95 transition-all"
+                  className="px-4 h-9 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-hover active:scale-95 transition-all"
                 >
                   Add
                 </button>
               </div>
             </form>
             {assignments?.length ? (
-              <ul className="mt-4 divide-y divide-gray-50 border border-gray-100 rounded-lg overflow-hidden">
+              <ul className="mt-4 divide-y divide-border border border-border rounded-lg overflow-hidden">
                 {(assignments as Assignment[]).map((a) => (
-                  <li key={a.id} className="text-sm text-gray-700 px-3 py-2.5 flex items-center justify-between gap-2 hover:bg-gray-50/60 transition-colors">
-                    <span className="font-medium text-gray-800 truncate">{a.name}</span>
+                  <li key={a.id} className="text-sm px-3 py-2.5 flex items-center justify-between gap-2 hover:bg-surface transition-colors">
+                    <span className="font-medium text-primary truncate">{a.name}</span>
                     <span className="flex items-center gap-3 flex-shrink-0">
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-muted">
                         Due {new Date(a.due_date + "T00:00:00").toLocaleDateString()}
                       </span>
                       <DeleteAssignmentButton id={a.id} name={a.name} />
@@ -117,16 +114,14 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
                 ))}
               </ul>
             ) : (
-              <p className="mt-4 text-xs text-gray-400 py-3 text-center border border-dashed border-gray-200 rounded-lg">No assignments yet — add one above.</p>
+              <p className="mt-4 text-xs text-muted py-3 text-center border border-dashed border-border rounded-lg">No assignments yet — add one above.</p>
             )}
           </section>
         </div>
 
         {/* Gradebook */}
         <section>
-          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">
-            Gradebook
-          </h2>
+          <SectionLabel className="mb-4">Gradebook</SectionLabel>
           <GradebookSection
             students={(students as Student[]) ?? []}
             assignments={(assignments as Assignment[]) ?? []}

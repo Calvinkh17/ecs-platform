@@ -40,8 +40,8 @@ function GradeRow({
   }
 
   return (
-    <div className={`flex items-center justify-between px-5 py-3 border-b border-gray-50 last:border-0 hover:bg-blue-50/20 transition-colors ${index % 2 === 0 ? "" : "bg-gray-50/30"}`}>
-      <span className="text-sm font-medium text-gray-800">{student.name}</span>
+    <div className={`flex items-center justify-between px-5 py-3 border-b border-border last:border-0 hover:bg-accent/5 transition-colors ${index % 2 === 0 ? "" : "bg-surface/50"}`}>
+      <span className="text-sm font-medium text-primary">{student.name}</span>
       <div className="flex items-center gap-3">
         {editing ? (
           <input
@@ -56,15 +56,15 @@ function GradeRow({
               if (e.key === "Enter") commit();
               if (e.key === "Escape") setEditing(false);
             }}
-            className="w-20 px-2 py-1 text-sm text-center border border-rule rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
+            className="w-20 px-2 py-1 text-sm text-center border border-accent/40 bg-surface-raised text-primary rounded-md focus:outline-none focus:ring-2 focus:ring-accent/40"
             autoFocus
           />
         ) : (
           <button
             onClick={() => { setEditing(true); setTimeout(() => inputRef.current?.select(), 0); }}
-            className="w-20 px-2 py-1 text-sm text-center border border-rule rounded-lg hover:border-gray-400 transition-colors text-gray-700"
+            className="w-20 px-2 py-1 text-sm text-center border border-border bg-surface-raised rounded-md hover:border-border-strong transition-colors text-secondary"
           >
-            {displayed !== null ? displayed : <span className="text-gray-300">—</span>}
+            {displayed !== null ? displayed : <span className="text-muted">—</span>}
           </button>
         )}
         {letter ? (
@@ -72,7 +72,7 @@ function GradeRow({
             {letter}
           </span>
         ) : (
-          <span className="w-9 h-7 flex items-center justify-center text-sm text-gray-300">—</span>
+          <span className="w-9 h-7 flex items-center justify-center text-sm text-muted">—</span>
         )}
       </div>
     </div>
@@ -130,16 +130,17 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
 
   if (!students.length || !assignments.length) {
     return (
-      <div className="card text-center py-14 text-gray-400 rounded-xl text-sm">
-        <svg className="mx-auto mb-3 text-gray-200" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <div className="card text-center py-14 text-muted rounded-xl text-sm">
+        <svg className="mx-auto mb-3 text-border-strong" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/><line x1="15" y1="9" x2="15" y2="21"/>
         </svg>
-        <p className="font-medium text-gray-400">
+        <p className="font-medium">
           {!students.length && !assignments.length
             ? "Add students and assignments to start grading."
             : !students.length
             ? "Add students to start grading."
-            : "Add assignments to start grading."}</p>
+            : "Add assignments to start grading."}
+        </p>
       </div>
     );
   }
@@ -158,8 +159,8 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
     <div className="flex gap-4 items-start">
       {/* Assignment list */}
       <div className="card w-56 flex-shrink-0 rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-rule bg-gray-50">
-          <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Assignments</span>
+        <div className="px-4 py-3 border-b border-border bg-surface">
+          <span className="text-xs font-semibold text-muted">Assignments</span>
         </div>
         <ul>
           {assignments.map((a) => {
@@ -176,17 +177,17 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
               <li key={a.id}>
                 <button
                   onClick={() => selectAssignment(a.id)}
-                  className={`w-full text-left px-4 py-3 border-b border-gray-50 last:border-0 transition-colors ${
-                    isActive ? "bg-forest text-white" : "hover:bg-gray-50 text-gray-700"
+                  className={`w-full text-left px-4 py-3 border-b border-border last:border-0 transition-colors ${
+                    isActive ? "bg-accent text-white" : "hover:bg-surface text-secondary"
                   }`}
                 >
-                  <div className={`text-sm font-medium truncate ${isActive ? "text-white" : "text-gray-800"}`}>
+                  <div className={`text-sm font-medium truncate ${isActive ? "text-white" : "text-primary"}`}>
                     {a.name}
                   </div>
-                  <div className={`text-xs mt-0.5 flex items-center justify-between ${isActive ? "text-gray-300" : "text-gray-400"}`}>
+                  <div className={`text-xs mt-0.5 flex items-center justify-between ${isActive ? "text-white/60" : "text-muted"}`}>
                     <span>{new Date(a.due_date + "T00:00:00").toLocaleDateString()}</span>
                     {aLetter && (
-                      <span className={isActive ? "text-gray-200" : gradeChip(aLetter).split(" ")[0]}>
+                      <span className={isActive ? "text-white/80" : ""}>
                         {aLetter}
                       </span>
                     )}
@@ -201,62 +202,62 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
       {/* Assignment detail */}
       <div className="card flex-1 rounded-xl overflow-hidden">
         {/* Header with average widget */}
-        <div className="px-5 py-4 border-b border-rule flex items-start justify-between gap-4">
+        <div className="px-5 py-4 border-b border-border flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <h3 className="text-base font-semibold text-gray-900">{assignment.name}</h3>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <h3 className="text-base font-semibold text-primary">{assignment.name}</h3>
+            <p className="text-xs text-muted mt-0.5">
               Due {new Date(assignment.due_date + "T00:00:00").toLocaleDateString()}
             </p>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs text-muted mt-0.5">
               {scores.length} of {students.length} graded
             </p>
           </div>
 
           {/* Average widget */}
-          <div className="flex-shrink-0 w-24 h-24 rounded-xl flex flex-col items-center justify-center bg-gray-50" style={{ border: "1px solid #E5E0D8" }}>
+          <div className="flex-shrink-0 w-24 h-24 rounded-xl flex flex-col items-center justify-center bg-surface border border-border">
             {avg !== null && avgLetter ? (
               <>
-                <span className="text-2xl font-bold text-gray-900">{avg}</span>
+                <span className="text-2xl font-bold text-primary">{avg}</span>
                 <span className={`inline-flex items-center justify-center w-9 h-7 rounded text-xs font-bold mt-1 ${gradeChip(avgLetter)}`}>
                   {avgLetter}
                 </span>
-                <span className="text-[10px] text-gray-400 mt-1">class avg</span>
+                <span className="text-[10px] text-muted mt-1">class avg</span>
               </>
             ) : (
               <>
-                <span className="text-2xl font-bold text-gray-300">—</span>
-                <span className="text-[10px] text-gray-400 mt-1">class avg</span>
+                <span className="text-2xl font-bold text-muted">—</span>
+                <span className="text-[10px] text-muted mt-1">class avg</span>
               </>
             )}
           </div>
         </div>
 
         {/* Student filter combobox */}
-        <div className="px-5 py-3 border-b border-rule">
+        <div className="px-5 py-3 border-b border-border">
           <div className="relative w-64">
-            <div className="flex items-center border border-rule rounded-lg bg-white overflow-hidden focus-within:ring-2 focus-within:ring-gold focus-within:border-transparent">
+            <div className="flex items-center border border-border bg-surface-raised rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-accent/40">
               <input
                 ref={studentInputRef}
                 type="text"
                 value={studentQuery}
                 placeholder="Filter by student…"
-                className="flex-1 px-3 py-2 text-sm focus:outline-none"
+                className="flex-1 px-3 py-2 text-sm text-primary placeholder:text-muted focus:outline-none bg-transparent"
                 onChange={(e) => { setStudentQuery(e.target.value); setStudentSelected(null); setDropdownOpen(true); }}
                 onFocus={() => setDropdownOpen(true)}
               />
               {studentQuery ? (
-                <button onClick={clearStudent} className="px-2.5 text-gray-400 hover:text-gray-600 text-lg leading-none">×</button>
+                <button onClick={clearStudent} className="px-2.5 text-muted hover:text-secondary text-lg leading-none">×</button>
               ) : (
-                <span className="px-2.5 text-gray-400 text-sm">▾</span>
+                <span className="px-2.5 text-muted text-sm">▾</span>
               )}
             </div>
             {dropdownOpen && filteredStudentOptions.length > 0 && (
-              <div ref={studentDropdownRef} className="absolute z-10 mt-1 w-full bg-white border border-rule rounded-lg shadow-lg overflow-hidden">
+              <div ref={studentDropdownRef} className="absolute z-10 mt-1 w-full bg-surface-raised border border-border rounded-lg shadow-elevated overflow-hidden">
                 {filteredStudentOptions.map((s) => (
                   <button
                     key={s.id}
                     onMouseDown={(e) => { e.preventDefault(); selectStudent(s); }}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${studentSelected?.id === s.id ? "bg-gray-50 font-medium" : "text-gray-700"}`}
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-surface transition-colors ${studentSelected?.id === s.id ? "bg-surface font-medium text-primary" : "text-secondary"}`}
                   >
                     {s.name}
                   </button>
@@ -264,7 +265,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
               </div>
             )}
             {dropdownOpen && filteredStudentOptions.length === 0 && studentQuery && (
-              <div ref={studentDropdownRef} className="absolute z-10 mt-1 w-full bg-white border border-rule rounded-lg shadow-lg px-3 py-2 text-sm text-gray-400">
+              <div ref={studentDropdownRef} className="absolute z-10 mt-1 w-full bg-surface-raised border border-border rounded-lg shadow-elevated px-3 py-2 text-sm text-muted">
                 No students match &ldquo;{studentQuery}&rdquo;
               </div>
             )}
@@ -272,10 +273,10 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
         </div>
 
         {/* Student list */}
-        <div className="divide-y divide-gray-50">
-          <div className="flex items-center justify-between px-5 py-2 bg-gray-50 border-b border-rule">
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Student</span>
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Score / Grade</span>
+        <div>
+          <div className="flex items-center justify-between px-5 py-2 bg-surface border-b border-border">
+            <span className="text-xs font-semibold text-muted">Student</span>
+            <span className="text-xs font-semibold text-muted">Score / Grade</span>
           </div>
           {visibleStudents.map((s, i) => (
             <GradeRow

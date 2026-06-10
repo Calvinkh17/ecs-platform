@@ -33,7 +33,7 @@ export default function ChatNavLink({ userId }: { userId: string }) {
   return (
     <Link
       href="/chat"
-      className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+      className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors"
     >
       Chat
       {!onPage && unread > 0 && (

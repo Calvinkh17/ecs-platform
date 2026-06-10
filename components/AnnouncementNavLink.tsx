@@ -33,7 +33,7 @@ export default function AnnouncementNavLink({ userId }: { userId: string }) {
   return (
     <Link
       href="/announcements"
-      className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+      className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors"
     >
       Announcements
       {!onPage && unread > 0 && (

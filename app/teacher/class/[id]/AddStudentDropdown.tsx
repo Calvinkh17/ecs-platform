@@ -63,33 +63,33 @@ export default function AddStudentDropdown({ classId, rosterStudents }: Props) {
   return (
     <div className="flex gap-2 items-start">
       <div className="relative flex-1">
-        <div className="flex items-center border border-gray-200 rounded-lg bg-white overflow-hidden focus-within:ring-2 focus-within:ring-gray-900 focus-within:border-transparent">
+        <div className="flex items-center border border-border rounded-lg bg-surface-raised overflow-hidden focus-within:ring-2 focus-within:ring-accent/40 focus-within:border-transparent">
           <input
             ref={inputRef}
             type="text"
             value={query}
             placeholder={rosterStudents.length ? "Search roster…" : "No students in roster yet"}
             disabled={!rosterStudents.length}
-            className="flex-1 px-3 py-2 text-sm focus:outline-none disabled:bg-gray-50 disabled:text-gray-400"
+            className="flex-1 px-3 py-2 text-sm text-primary bg-transparent focus:outline-none disabled:opacity-50 placeholder:text-muted"
             onChange={e => { setQuery(e.target.value); setSelected(null); setOpen(true); }}
             onFocus={() => setOpen(true)}
           />
           {query ? (
-            <button onClick={clear} className="px-2.5 text-gray-400 hover:text-gray-600 text-lg leading-none">×</button>
+            <button onClick={clear} className="px-2.5 text-muted hover:text-secondary text-lg leading-none">×</button>
           ) : (
-            <span className="px-2.5 text-gray-400 text-sm">▾</span>
+            <span className="px-2.5 text-muted text-sm">▾</span>
           )}
         </div>
         {open && options.length > 0 && (
-          <div ref={dropdownRef} className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden max-h-48 overflow-y-auto">
+          <div ref={dropdownRef} className="absolute z-10 mt-1 w-full bg-surface-raised border border-border rounded-lg shadow-elevated overflow-hidden max-h-48 overflow-y-auto">
             {options.map(s => (
               <button
                 key={s.id}
                 onMouseDown={e => { e.preventDefault(); pick(s); }}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors"
+                className="w-full text-left px-3 py-2 text-sm hover:bg-surface transition-colors"
               >
-                <span className="font-medium text-gray-800">{s.name}</span>
-                <span className="ml-2 text-xs text-gray-400">
+                <span className="font-medium text-primary">{s.name}</span>
+                <span className="ml-2 text-xs text-muted">
                   {s.grade_level === "K" ? "K" : `Gr. ${s.grade_level}`} · Grad. {s.graduating_year}
                 </span>
               </button>
@@ -97,7 +97,7 @@ export default function AddStudentDropdown({ classId, rosterStudents }: Props) {
           </div>
         )}
         {open && options.length === 0 && query && (
-          <div ref={dropdownRef} className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg px-3 py-2 text-sm text-gray-400">
+          <div ref={dropdownRef} className="absolute z-10 mt-1 w-full bg-surface-raised border border-border rounded-lg shadow-elevated px-3 py-2 text-sm text-muted">
             No matches for &ldquo;{query}&rdquo;
           </div>
         )}
@@ -105,7 +105,7 @@ export default function AddStudentDropdown({ classId, rosterStudents }: Props) {
       <button
         onClick={submit}
         disabled={!selected || loading}
-        className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {loading ? "Adding…" : "Add"}
       </button>

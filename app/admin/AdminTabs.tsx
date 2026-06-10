@@ -8,17 +8,11 @@ import ObservationTab from "./ObservationTab";
 import AnnouncementAccessTab from "./AnnouncementAccessTab";
 import ChannelsTab from "./ChannelsTab";
 import ClassesTab from "./ClassesTab";
+import { SectionLabel } from "@/components/ui/SectionLabel";
+import { RoleBadge } from "@/components/ui/Badge";
 
 const GRADE_LEVELS = ["K","1","2","3","4","5","6","7","8","9","10","11","12","Graduated"];
 const ROLES = ["admin","teacher","parent","student","pending"] as const;
-
-const roleColors: Record<string, string> = {
-  admin:   "bg-purple-50 text-purple-700",
-  teacher: "bg-blue-50 text-blue-700",
-  parent:  "bg-green-50 text-green-700",
-  student: "bg-yellow-50 text-yellow-700",
-  pending: "bg-gray-100 text-gray-500",
-};
 
 interface AppUser {
   id: string;
@@ -40,6 +34,10 @@ interface Props {
   initialClasses: Class[];
 }
 
+const inputCls = "px-3 h-9 rounded-md border border-border bg-surface-raised text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/40 transition-colors";
+const selectCls = "h-9 px-3 rounded-md border border-border bg-surface-raised text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent/40 transition-colors";
+const btnPrimary = "px-4 h-9 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-hover transition-colors disabled:opacity-50";
+
 export default function AdminTabs({ meId, users, schoolStudents: initialStudents, initialParentLinks, initialObservations, initialResponses, initialAnnouncementAccess, initialChannels, initialChannelMembers, initialClasses }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -59,7 +57,6 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
     router.replace(`?${params.toString()}`, { scroll: false });
   }
 
-  // Students tab state
   const [gradeFilter, setGradeFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
   const [addStatus, setAddStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
@@ -71,7 +68,6 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
   const [editError, setEditError] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Parents tab state
   const [links, setLinks] = useState<ParentLink[]>(initialParentLinks);
   const [linkStatus, setLinkStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
   const [linkError, setLinkError] = useState("");
@@ -88,24 +84,34 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
     return true;
   });
 
+  const TAB_LABELS: Record<Tab, string> = {
+    users: "Users", students: "Students", parents: "Parents",
+    observations: "Observations", announcements: "Announcements",
+    channels: "Channels", classes: "Classes",
+  };
+  const TAB_COUNTS: Partial<Record<Tab, number>> = {
+    users: users.length, students: roster.length,
+    parents: links.length, classes: initialClasses.length,
+  };
+
   return (
     <div className="space-y-8">
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 flex-wrap">
+      <div className="flex border-b border-border flex-wrap -mb-px">
         {(["users", "students", "parents", "observations", "announcements", "channels", "classes"] as const).map(t => (
           <button
             key={t}
             onClick={() => changeTab(t)}
             className={`px-5 py-3 text-sm font-medium transition-all border-b-2 -mb-px ${
               tab === t
-                ? "border-forest text-ink"
-                : "border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300"
+                ? "border-accent text-primary"
+                : "border-transparent text-muted hover:text-secondary hover:border-border"
             }`}
           >
-            {t === "users" ? `Users` : t === "students" ? `Students` : t === "parents" ? `Parents` : t === "observations" ? "Observations" : t === "announcements" ? "Announcements" : t === "channels" ? "Channels" : `Classes`}
-            {(t === "users" || t === "students" || t === "parents" || t === "classes") && (
-              <span className={`ml-1.5 text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${tab === t ? "bg-forest/10 text-forest" : "bg-gray-100 text-gray-400"}`}>
-                {t === "users" ? users.length : t === "students" ? roster.length : t === "parents" ? links.length : initialClasses.length}
+            {TAB_LABELS[t]}
+            {TAB_COUNTS[t] !== undefined && (
+              <span className={`ml-1.5 text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${tab === t ? "bg-accent/10 text-accent" : "bg-surface text-muted"}`}>
+                {TAB_COUNTS[t]}
               </span>
             )}
             {t === "users" && pending.length > 0 && tab !== "users" && (
@@ -121,51 +127,47 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
           {/* Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="card rounded-xl px-5 py-4">
-              <div className="text-3xl font-bold text-gray-900 tabular-nums">{users.length}</div>
-              <div className="text-xs text-gray-500 mt-1.5 font-medium uppercase tracking-wide">Total Users</div>
+              <div className="text-3xl font-bold text-primary tabular-nums">{users.length}</div>
+              <div className="text-xs text-muted mt-1.5 font-medium">Total Users</div>
             </div>
-            <div className={`card rounded-xl px-5 py-4 ${pending.length > 0 ? "!bg-amber-50 !border-amber-200" : ""}`}>
-              <div className={`text-3xl font-bold tabular-nums ${pending.length > 0 ? "text-amber-600" : "text-gray-900"}`}>{pending.length}</div>
-              <div className={`text-xs mt-1.5 font-medium uppercase tracking-wide ${pending.length > 0 ? "text-amber-600/70" : "text-gray-500"}`}>Pending Approval</div>
-            </div>
-            <div className="card rounded-xl px-5 py-4">
-              <div className="text-3xl font-bold text-forest tabular-nums">{users.filter(u => u.role === "teacher").length}</div>
-              <div className="text-xs text-gray-500 mt-1.5 font-medium uppercase tracking-wide">Teachers</div>
+            <div className={`card rounded-xl px-5 py-4 ${pending.length > 0 ? "!bg-amber-500/10 !border-amber-500/30" : ""}`}>
+              <div className={`text-3xl font-bold tabular-nums ${pending.length > 0 ? "text-amber-500" : "text-primary"}`}>{pending.length}</div>
+              <div className={`text-xs mt-1.5 font-medium ${pending.length > 0 ? "text-amber-500/80" : "text-muted"}`}>Pending Approval</div>
             </div>
             <div className="card rounded-xl px-5 py-4">
-              <div className="text-3xl font-bold text-gray-900 tabular-nums">{users.filter(u => u.role === "parent").length}</div>
-              <div className="text-xs text-gray-500 mt-1.5 font-medium uppercase tracking-wide">Parents</div>
+              <div className="text-3xl font-bold text-accent tabular-nums">{users.filter(u => u.role === "teacher").length}</div>
+              <div className="text-xs text-muted mt-1.5 font-medium">Teachers</div>
+            </div>
+            <div className="card rounded-xl px-5 py-4">
+              <div className="text-3xl font-bold text-primary tabular-nums">{users.filter(u => u.role === "parent").length}</div>
+              <div className="text-xs text-muted mt-1.5 font-medium">Parents</div>
             </div>
           </div>
 
           <section>
-            <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-              Pending Approval ({pending.length})
-            </h2>
+            <SectionLabel>Pending Approval ({pending.length})</SectionLabel>
             {pending.length === 0 ? (
-              <div className="card text-center py-8 text-gray-400 rounded-xl text-sm">
-                <svg className="mx-auto mb-2 text-gray-300" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <div className="card text-center py-8 text-muted rounded-xl text-sm">
+                <svg className="mx-auto mb-2 text-border-strong" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 All users have been approved.
               </div>
             ) : (
               <ul className="space-y-2">
                 {pending.map(u => (
-                  <li key={u.id} className="card rounded-xl px-5 py-4 flex items-center justify-between gap-4 !bg-amber-50 !border-amber-200">
+                  <li key={u.id} className="card rounded-xl px-5 py-4 flex items-center justify-between gap-4 !bg-amber-500/10 !border-amber-500/30">
                     <div>
-                      <p className="font-medium text-gray-900">{u.name}</p>
-                      <p className="text-sm text-gray-400">{u.email}</p>
+                      <p className="font-medium text-primary">{u.name}</p>
+                      <p className="text-sm text-muted">{u.email}</p>
                     </div>
                     <form action={assignRole} className="flex items-center gap-2">
                       <input type="hidden" name="user_id" value={u.id} />
-                      <select name="role" defaultValue="" required className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold">
+                      <select name="role" defaultValue="" required className={selectCls}>
                         <option value="" disabled>Assign role…</option>
                         {ROLES.filter(r => r !== "pending").map(r => (
                           <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
                         ))}
                       </select>
-                      <button type="submit" className="px-3 py-1.5 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors">
-                        Assign
-                      </button>
+                      <button type="submit" className={btnPrimary}>Assign</button>
                     </form>
                   </li>
                 ))}
@@ -174,41 +176,37 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
           </section>
 
           <section>
-            <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-              All Users ({users.length})
-            </h2>
+            <SectionLabel>All Users ({users.length})</SectionLabel>
             <div className="card rounded-xl overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-100">
-                    <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Name</th>
-                    <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Email</th>
-                    <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Role</th>
-                    <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Change Role</th>
+                  <tr className="bg-surface border-b border-border">
+                    <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Name</th>
+                    <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Email</th>
+                    <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Role</th>
+                    <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Change Role</th>
                   </tr>
                 </thead>
                 <tbody>
                   {[...pending, ...others].map(u => (
-                    <tr key={u.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                      <td className="px-5 py-3 font-medium text-gray-800">
+                    <tr key={u.id} className="border-b border-border last:border-0 hover:bg-surface/50 transition-colors">
+                      <td className="px-5 py-3 font-medium text-primary">
                         {u.name}
-                        {u.id === meId && <span className="ml-2 text-xs text-gray-400">(you)</span>}
+                        {u.id === meId && <span className="ml-2 text-xs text-muted">(you)</span>}
                       </td>
-                      <td className="px-5 py-3 text-gray-500">{u.email}</td>
+                      <td className="px-5 py-3 text-muted">{u.email}</td>
                       <td className="px-5 py-3">
-                        <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${roleColors[u.role] ?? "bg-gray-100 text-gray-500"}`}>
-                          {u.role}
-                        </span>
+                        <RoleBadge role={u.role} />
                       </td>
                       <td className="px-5 py-3">
                         <form action={assignRole} className="flex items-center gap-2">
                           <input type="hidden" name="user_id" value={u.id} />
-                          <select name="role" defaultValue={u.role} className="px-2 py-1 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-gold">
+                          <select name="role" defaultValue={u.role} className="h-7 px-2 rounded-md border border-border bg-surface-raised text-xs text-primary focus:outline-none focus:ring-1 focus:ring-accent/40">
                             {ROLES.map(r => (
                               <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
                             ))}
                           </select>
-                          <button type="submit" className="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors">
+                          <button type="submit" className="px-2 h-7 bg-surface border border-border text-secondary text-xs font-medium rounded-md hover:bg-border transition-colors">
                             Save
                           </button>
                         </form>
@@ -226,9 +224,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
       {tab === "students" && (
         <div className="space-y-6">
           <section className="card rounded-xl p-5">
-            <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-              Add Student to Roster
-            </h2>
+            <SectionLabel>Add Student to Roster</SectionLabel>
             <form
               ref={formRef}
               onSubmit={async (e) => {
@@ -238,11 +234,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                 try {
                   const fd = new FormData(e.currentTarget);
                   const result = await addSchoolStudent(fd);
-                  if (result?.error) {
-                    setAddStatus("error");
-                    setAddError(result.error);
-                    return;
-                  }
+                  if (result?.error) { setAddStatus("error"); setAddError(result.error); return; }
                   const newStudent: SchoolStudent = {
                     id: crypto.randomUUID(),
                     name: (fd.get("name") as string).trim(),
@@ -264,12 +256,12 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
               className="flex flex-wrap gap-2 items-end"
             >
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-gray-400">Name</label>
-                <input type="text" name="name" placeholder="Full name" required className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-48" />
+                <label className="text-xs text-muted">Name</label>
+                <input type="text" name="name" placeholder="Full name" required className={`${inputCls} w-48`} />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-gray-400">Grade</label>
-                <select name="grade_level" required defaultValue="" className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold">
+                <label className="text-xs text-muted">Grade</label>
+                <select name="grade_level" required defaultValue="" className={selectCls}>
                   <option value="" disabled>Grade…</option>
                   {GRADE_LEVELS.map(g => (
                     <option key={g} value={g}>{g === "K" ? "Kindergarten" : g === "Graduated" ? "Graduated" : `Grade ${g}`}</option>
@@ -277,123 +269,81 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                 </select>
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-gray-400">Year Joined</label>
-                <input type="number" name="year_joined" placeholder="2024" min={2000} max={2100} required className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-28" />
+                <label className="text-xs text-muted">Year Joined</label>
+                <input type="number" name="year_joined" placeholder="2024" min={2000} max={2100} required className={`${inputCls} w-28`} />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-gray-400">Graduating Year</label>
-                <input type="number" name="graduating_year" placeholder="2026" min={2000} max={2100} required className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-36" />
+                <label className="text-xs text-muted">Graduating Year</label>
+                <input type="number" name="graduating_year" placeholder="2026" min={2000} max={2100} required className={`${inputCls} w-36`} />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-gray-400">Email (optional)</label>
-                <input type="email" name="email" placeholder="student@school.edu" className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-48" />
+                <label className="text-xs text-muted">Email (optional)</label>
+                <input type="email" name="email" placeholder="student@school.edu" className={`${inputCls} w-48`} />
               </div>
-              <button type="submit" disabled={addStatus === "pending"} className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-50">
+              <button type="submit" disabled={addStatus === "pending"} className={btnPrimary}>
                 {addStatus === "pending" ? "Adding…" : "Add"}
               </button>
             </form>
             {addStatus === "success" && <p className="mt-2 text-sm text-green-600">Student added successfully.</p>}
-            {addStatus === "error" && <p className="mt-2 text-sm text-red-500">Error: {addError || "Something went wrong."}</p>}
+            {addStatus === "error" && <p className="mt-2 text-sm text-danger">Error: {addError || "Something went wrong."}</p>}
           </section>
 
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+              <SectionLabel className="mb-0">
                 All Students ({filtered.length}{filtered.length !== roster.length ? ` of ${roster.length}` : ""})
-              </h2>
+              </SectionLabel>
               <div className="flex items-center gap-2">
-                <select value={gradeFilter} onChange={e => setGradeFilter(e.target.value)} className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold">
+                <select value={gradeFilter} onChange={e => setGradeFilter(e.target.value)} className={selectCls}>
                   <option value="">All grades</option>
                   {GRADE_LEVELS.map(g => <option key={g} value={g}>{g === "K" ? "Kindergarten" : g === "Graduated" ? "Graduated" : `Grade ${g}`}</option>)}
                 </select>
-                <select value={yearFilter} onChange={e => setYearFilter(e.target.value)} className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold">
+                <select value={yearFilter} onChange={e => setYearFilter(e.target.value)} className={selectCls}>
                   <option value="">All years</option>
                   {uniqueYears.map(y => <option key={y} value={String(y)}>{y}</option>)}
                 </select>
                 {(gradeFilter || yearFilter) && (
-                  <button onClick={() => { setGradeFilter(""); setYearFilter(""); }} className="text-xs text-gray-400 hover:text-gray-600">Clear</button>
+                  <button onClick={() => { setGradeFilter(""); setYearFilter(""); }} className="text-xs text-muted hover:text-secondary">Clear</button>
                 )}
               </div>
             </div>
             {filtered.length === 0 ? (
               <div className="card text-center py-12 rounded-xl">
-                <p className="text-sm text-gray-400">{roster.length === 0 ? "No students in the roster yet — add one above." : "No students match the selected filters."}</p>
+                <p className="text-sm text-muted">{roster.length === 0 ? "No students in the roster yet — add one above." : "No students match the selected filters."}</p>
               </div>
             ) : (
               <div className="card rounded-xl overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-gray-50 border-b border-gray-100">
-                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Name</th>
-                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Grade</th>
-                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Year Joined</th>
-                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Graduating Year</th>
-                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Email</th>
+                    <tr className="bg-surface border-b border-border">
+                      <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Name</th>
+                      <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Grade</th>
+                      <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Year Joined</th>
+                      <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Graduating Year</th>
+                      <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Email</th>
                       <th className="px-5 py-3.5" />
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map(s => editingId === s.id ? (
-                      <tr key={s.id} className="border-b border-gray-50 last:border-0 bg-blue-50/20">
+                      <tr key={s.id} className="border-b border-border last:border-0 bg-accent/5">
+                        <td className="px-3 py-2"><input type="text" value={editValues.name} onChange={e => setEditValues(v => ({ ...v, name: e.target.value }))} className={`${inputCls} w-full`} /></td>
                         <td className="px-3 py-2">
-                          <input
-                            type="text"
-                            value={editValues.name}
-                            onChange={e => setEditValues(v => ({ ...v, name: e.target.value }))}
-                            className="w-full px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <select
-                            value={editValues.grade_level}
-                            onChange={e => setEditValues(v => ({ ...v, grade_level: e.target.value }))}
-                            className="w-full px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
-                          >
-                            {GRADE_LEVELS.map(g => (
-                              <option key={g} value={g}>{g === "K" ? "Kindergarten" : g === "Graduated" ? "Graduated" : `Grade ${g}`}</option>
-                            ))}
+                          <select value={editValues.grade_level} onChange={e => setEditValues(v => ({ ...v, grade_level: e.target.value }))} className={`${selectCls} w-full`}>
+                            {GRADE_LEVELS.map(g => <option key={g} value={g}>{g === "K" ? "Kindergarten" : g === "Graduated" ? "Graduated" : `Grade ${g}`}</option>)}
                           </select>
                         </td>
-                        <td className="px-3 py-2">
-                          <input
-                            type="number"
-                            value={editValues.year_joined}
-                            onChange={e => setEditValues(v => ({ ...v, year_joined: e.target.value }))}
-                            min={2000}
-                            max={2100}
-                            className="w-24 px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <input
-                            type="number"
-                            value={editValues.graduating_year}
-                            onChange={e => setEditValues(v => ({ ...v, graduating_year: e.target.value }))}
-                            min={2000}
-                            max={2100}
-                            className="w-24 px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
-                            required
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <input
-                            type="email"
-                            value={editValues.email}
-                            onChange={e => setEditValues(v => ({ ...v, email: e.target.value }))}
-                            placeholder="optional"
-                            className="w-full px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
-                          />
-                        </td>
+                        <td className="px-3 py-2"><input type="number" value={editValues.year_joined} onChange={e => setEditValues(v => ({ ...v, year_joined: e.target.value }))} min={2000} max={2100} className={`${inputCls} w-24`} /></td>
+                        <td className="px-3 py-2"><input type="number" value={editValues.graduating_year} onChange={e => setEditValues(v => ({ ...v, graduating_year: e.target.value }))} min={2000} max={2100} className={`${inputCls} w-24`} required /></td>
+                        <td className="px-3 py-2"><input type="email" value={editValues.email} onChange={e => setEditValues(v => ({ ...v, email: e.target.value }))} placeholder="optional" className={`${inputCls} w-full`} /></td>
                         <td className="px-3 py-2 text-right">
                           <div className="flex items-center justify-end gap-2 flex-wrap">
                             <button
                               disabled={editSaving}
                               onClick={async () => {
-                                setEditSaving(true);
-                                setEditError("");
+                                setEditSaving(true); setEditError("");
                                 const fd = new FormData();
-                                fd.append("id", s.id);
-                                fd.append("name", editValues.name);
+                                fd.append("id", s.id); fd.append("name", editValues.name);
                                 fd.append("grade_level", editValues.grade_level);
                                 fd.append("year_joined", editValues.year_joined);
                                 fd.append("graduating_year", editValues.graduating_year);
@@ -401,69 +351,29 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                                 const result = await updateSchoolStudent(fd);
                                 setEditSaving(false);
                                 if (result?.error) { setEditError(result.error); return; }
-                                setRoster(prev =>
-                                  prev.map(r => r.id === s.id ? {
-                                    ...r,
-                                    name: editValues.name.trim(),
-                                    grade_level: editValues.grade_level,
-                                    year_joined: parseInt(editValues.year_joined),
-                                    graduating_year: parseInt(editValues.graduating_year),
-                                    email: editValues.email.trim() || null,
-                                  } : r).sort((a, b) => a.name.localeCompare(b.name))
-                                );
+                                setRoster(prev => prev.map(r => r.id === s.id ? { ...r, name: editValues.name.trim(), grade_level: editValues.grade_level, year_joined: parseInt(editValues.year_joined), graduating_year: parseInt(editValues.graduating_year), email: editValues.email.trim() || null } : r).sort((a, b) => a.name.localeCompare(b.name)));
                                 setEditingId(null);
                               }}
-                              className="text-xs font-medium text-green-600 hover:text-green-800 disabled:opacity-50 transition-colors"
+                              className="text-xs font-medium text-green-600 hover:text-green-700 disabled:opacity-50 transition-colors"
                             >
                               {editSaving ? "Saving…" : "Save"}
                             </button>
-                            <button
-                              onClick={() => { setEditingId(null); setEditError(""); }}
-                              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
-                            >
-                              Cancel
-                            </button>
-                            {editError && <span className="text-xs text-red-500">{editError}</span>}
+                            <button onClick={() => { setEditingId(null); setEditError(""); }} className="text-xs text-muted hover:text-secondary transition-colors">Cancel</button>
+                            {editError && <span className="text-xs text-danger">{editError}</span>}
                           </div>
                         </td>
                       </tr>
                     ) : (
-                      <tr key={s.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                        <td className="px-5 py-3 font-medium text-gray-800">{s.name}</td>
-                        <td className="px-5 py-3 text-gray-600">{s.grade_level === "K" ? "Kindergarten" : s.grade_level === "Graduated" ? "Graduated" : `Grade ${s.grade_level}`}</td>
-                        <td className="px-5 py-3 text-gray-600">{s.year_joined}</td>
-                        <td className="px-5 py-3 text-gray-600">{s.graduating_year}</td>
-                        <td className="px-5 py-3 text-gray-400">{s.email ?? "—"}</td>
+                      <tr key={s.id} className="border-b border-border last:border-0 hover:bg-surface/50 transition-colors">
+                        <td className="px-5 py-3 font-medium text-primary">{s.name}</td>
+                        <td className="px-5 py-3 text-secondary">{s.grade_level === "K" ? "Kindergarten" : s.grade_level === "Graduated" ? "Graduated" : `Grade ${s.grade_level}`}</td>
+                        <td className="px-5 py-3 text-secondary">{s.year_joined}</td>
+                        <td className="px-5 py-3 text-secondary">{s.graduating_year}</td>
+                        <td className="px-5 py-3 text-muted">{s.email ?? "—"}</td>
                         <td className="px-5 py-3 text-right">
                           <div className="flex items-center justify-end gap-3">
-                            <button
-                              className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
-                              onClick={() => {
-                                setEditingId(s.id);
-                                setEditValues({
-                                  name: s.name,
-                                  grade_level: s.grade_level,
-                                  year_joined: String(s.year_joined),
-                                  graduating_year: s.graduating_year != null ? String(s.graduating_year) : "",
-                                  email: s.email ?? "",
-                                });
-                                setEditError("");
-                              }}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="text-xs text-red-400 hover:text-red-600 transition-colors"
-                              onClick={async () => {
-                                if (!confirm(`Remove "${s.name}" from the roster?`)) return;
-                                const fd = new FormData();
-                                fd.append("id", s.id);
-                                await deleteSchoolStudent(fd);
-                                setRoster(prev => prev.filter(r => r.id !== s.id));
-                              }}
-                            >
-                              Delete
-                            </button>
+                            <button className="text-xs text-muted hover:text-secondary transition-colors" onClick={() => { setEditingId(s.id); setEditValues({ name: s.name, grade_level: s.grade_level, year_joined: String(s.year_joined), graduating_year: s.graduating_year != null ? String(s.graduating_year) : "", email: s.email ?? "" }); setEditError(""); }}>Edit</button>
+                            <button className="text-xs text-danger hover:text-danger/80 transition-colors" onClick={async () => { if (!confirm(`Remove "${s.name}" from the roster?`)) return; const fd = new FormData(); fd.append("id", s.id); await deleteSchoolStudent(fd); setRoster(prev => prev.filter(r => r.id !== s.id)); }}>Delete</button>
                           </div>
                         </td>
                       </tr>
@@ -476,34 +386,15 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
         </div>
       )}
 
-      {/* ── Observations tab ── */}
       {tab === "observations" && (
-        <ObservationTab
-          teachers={teacherUsers}
-          initialObservations={initialObservations}
-          initialResponses={initialResponses}
-        />
+        <ObservationTab teachers={teacherUsers} initialObservations={initialObservations} initialResponses={initialResponses} />
       )}
-
-      {/* ── Announcements tab ── */}
       {tab === "announcements" && (
-        <AnnouncementAccessTab
-          users={users}
-          initialAccess={initialAnnouncementAccess}
-        />
+        <AnnouncementAccessTab users={users} initialAccess={initialAnnouncementAccess} />
       )}
-
-      {/* ── Channels tab ── */}
       {tab === "channels" && (
-        <ChannelsTab
-          meId={meId}
-          users={users}
-          initialChannels={initialChannels}
-          initialMembers={initialChannelMembers}
-        />
+        <ChannelsTab meId={meId} users={users} initialChannels={initialChannels} initialMembers={initialChannelMembers} />
       )}
-
-      {/* ── Classes tab ── */}
       {tab === "classes" && (
         <ClassesTab initialClasses={initialClasses} users={users} />
       )}
@@ -512,38 +403,23 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
       {tab === "parents" && (
         <div className="space-y-6">
           <section className="card rounded-xl p-5">
-            <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-              Link Parent to Student
-            </h2>
+            <SectionLabel>Link Parent to Student</SectionLabel>
             {parentUsers.length === 0 ? (
-              <p className="text-sm text-gray-400">No parent accounts yet. Assign the "parent" role to a user first.</p>
+              <p className="text-sm text-muted">No parent accounts yet. Assign the &ldquo;parent&rdquo; role to a user first.</p>
             ) : roster.length === 0 ? (
-              <p className="text-sm text-gray-400">No students in the roster yet. Add students first.</p>
+              <p className="text-sm text-muted">No students in the roster yet. Add students first.</p>
             ) : (
               <form
                 ref={linkFormRef}
                 onSubmit={async (e) => {
                   e.preventDefault();
-                  setLinkStatus("pending");
-                  setLinkError("");
+                  setLinkStatus("pending"); setLinkError("");
                   const fd = new FormData(e.currentTarget);
                   const result = await linkParentStudent(fd);
-                  if (result?.error) {
-                    setLinkStatus("error");
-                    setLinkError(result.error);
-                    return;
-                  }
+                  if (result?.error) { setLinkStatus("error"); setLinkError(result.error); return; }
                   const parent_id = fd.get("parent_id") as string;
                   const student_id = fd.get("student_id") as string;
-                  const newLink: ParentLink = {
-                    id: crypto.randomUUID(),
-                    parent_id,
-                    student_id,
-                    parent_name: parentUsers.find(u => u.id === parent_id)?.name ?? "",
-                    parent_email: parentUsers.find(u => u.id === parent_id)?.email ?? "",
-                    student_name: roster.find(s => s.id === student_id)?.name ?? "",
-                    created_at: new Date().toISOString(),
-                  };
+                  const newLink: ParentLink = { id: crypto.randomUUID(), parent_id, student_id, parent_name: parentUsers.find(u => u.id === parent_id)?.name ?? "", parent_email: parentUsers.find(u => u.id === parent_id)?.email ?? "", student_name: roster.find(s => s.id === student_id)?.name ?? "", created_at: new Date().toISOString() };
                   setLinks(prev => [newLink, ...prev]);
                   linkFormRef.current?.reset();
                   setLinkStatus("success");
@@ -552,60 +428,54 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                 className="flex flex-wrap gap-2 items-end"
               >
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-gray-400">Parent</label>
-                  <select name="parent_id" required defaultValue="" className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-56">
+                  <label className="text-xs text-muted">Parent</label>
+                  <select name="parent_id" required defaultValue="" className={`${selectCls} w-56`}>
                     <option value="" disabled>Select parent…</option>
-                    {parentUsers.map(u => (
-                      <option key={u.id} value={u.id}>{u.name || u.email}</option>
-                    ))}
+                    {parentUsers.map(u => <option key={u.id} value={u.id}>{u.name || u.email}</option>)}
                   </select>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs text-gray-400">Student</label>
-                  <select name="student_id" required defaultValue="" className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-56">
+                  <label className="text-xs text-muted">Student</label>
+                  <select name="student_id" required defaultValue="" className={`${selectCls} w-56`}>
                     <option value="" disabled>Select student…</option>
-                    {roster.map(s => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
+                    {roster.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
                 </div>
-                <button type="submit" disabled={linkStatus === "pending"} className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-50">
+                <button type="submit" disabled={linkStatus === "pending"} className={btnPrimary}>
                   {linkStatus === "pending" ? "Linking…" : "Link"}
                 </button>
               </form>
             )}
             {linkStatus === "success" && <p className="mt-2 text-sm text-green-600">Linked successfully.</p>}
-            {linkStatus === "error" && <p className="mt-2 text-sm text-red-500">Error: {linkError}</p>}
+            {linkStatus === "error" && <p className="mt-2 text-sm text-danger">Error: {linkError}</p>}
           </section>
 
           <section>
-            <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-              All Parent-Student Links ({links.length})
-            </h2>
+            <SectionLabel>All Parent-Student Links ({links.length})</SectionLabel>
             {links.length === 0 ? (
-              <div className="text-center py-10 text-gray-400 bg-white rounded-xl border border-gray-100 text-sm">
+              <div className="text-center py-10 text-muted card rounded-xl text-sm">
                 No links yet.
               </div>
             ) : (
               <div className="card rounded-xl overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-gray-50 border-b border-gray-100">
-                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Parent</th>
-                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Email</th>
-                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Student</th>
+                    <tr className="bg-surface border-b border-border">
+                      <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Parent</th>
+                      <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Email</th>
+                      <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Student</th>
                       <th className="px-5 py-3.5" />
                     </tr>
                   </thead>
                   <tbody>
                     {links.map(link => (
-                      <tr key={link.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                        <td className="px-5 py-3 font-medium text-gray-800">{link.parent_name || "—"}</td>
-                        <td className="px-5 py-3 text-gray-500">{link.parent_email}</td>
-                        <td className="px-5 py-3 text-gray-700">{link.student_name}</td>
+                      <tr key={link.id} className="border-b border-border last:border-0 hover:bg-surface/50 transition-colors">
+                        <td className="px-5 py-3 font-medium text-primary">{link.parent_name || "—"}</td>
+                        <td className="px-5 py-3 text-muted">{link.parent_email}</td>
+                        <td className="px-5 py-3 text-secondary">{link.student_name}</td>
                         <td className="px-5 py-3 text-right">
                           <button
-                            className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                            className="text-xs text-danger hover:text-danger/80 transition-colors"
                             onClick={async () => {
                               if (!confirm(`Remove link between ${link.parent_name || link.parent_email} and ${link.student_name}?`)) return;
                               const fd = new FormData();

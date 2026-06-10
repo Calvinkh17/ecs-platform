@@ -31,15 +31,8 @@ export default function ClassesTab({ initialClasses, users }: Props) {
     fd.append("teacher_id", selected[classId] ?? "");
     const result = await reassignClass(fd);
     setSaving((s) => ({ ...s, [classId]: false }));
-    if (result?.error) {
-      setErrors((e) => ({ ...e, [classId]: result.error! }));
-      return;
-    }
-    setClasses((prev) =>
-      prev.map((c) =>
-        c.id === classId ? { ...c, teacher_id: selected[classId] || null } : c
-      )
-    );
+    if (result?.error) { setErrors((e) => ({ ...e, [classId]: result.error! })); return; }
+    setClasses((prev) => prev.map((c) => c.id === classId ? { ...c, teacher_id: selected[classId] || null } : c));
     setSaved((s) => ({ ...s, [classId]: true }));
     setTimeout(() => setSaved((s) => ({ ...s, [classId]: false })), 2000);
   }
@@ -47,17 +40,17 @@ export default function ClassesTab({ initialClasses, users }: Props) {
   return (
     <div className="card rounded-xl overflow-hidden">
       {classes.length === 0 ? (
-        <div className="text-center py-10 text-gray-400 text-sm">
+        <div className="text-center py-10 text-muted text-sm p-6">
           No classes yet. Create one from the Teacher Dashboard.
         </div>
       ) : (
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="text-left px-5 py-3 font-medium text-gray-500">Class</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-500">Current Teacher</th>
-              <th className="text-left px-5 py-3 font-medium text-gray-500">Reassign To</th>
-              <th className="px-5 py-3" />
+            <tr className="bg-surface border-b border-border">
+              <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Class</th>
+              <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Current Teacher</th>
+              <th className="text-left px-5 py-3.5 font-semibold text-muted text-xs">Reassign To</th>
+              <th className="px-5 py-3.5" />
             </tr>
           </thead>
           <tbody>
@@ -65,9 +58,9 @@ export default function ClassesTab({ initialClasses, users }: Props) {
               const currentTeacherId = cls.teacher_id ?? "";
               const isDirty = selected[cls.id] !== currentTeacherId;
               return (
-                <tr key={cls.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                  <td className="px-5 py-3 font-medium text-gray-800">{cls.name}</td>
-                  <td className="px-5 py-3 text-gray-500">
+                <tr key={cls.id} className="border-b border-border last:border-0 hover:bg-surface/50 transition-colors">
+                  <td className="px-5 py-3 font-medium text-primary">{cls.name}</td>
+                  <td className="px-5 py-3 text-muted">
                     {cls.teacher_id
                       ? (nameMap[cls.teacher_id] ?? "Unknown")
                       : <span className="text-amber-500">Unassigned</span>}
@@ -75,31 +68,23 @@ export default function ClassesTab({ initialClasses, users }: Props) {
                   <td className="px-5 py-3">
                     <select
                       value={selected[cls.id] ?? ""}
-                      onChange={(e) =>
-                        setSelected((s) => ({ ...s, [cls.id]: e.target.value }))
-                      }
-                      className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-52"
+                      onChange={(e) => setSelected((s) => ({ ...s, [cls.id]: e.target.value }))}
+                      className="h-9 px-3 rounded-md border border-border bg-surface-raised text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent/40 transition-colors w-52"
                     >
                       <option value="">— Unassigned —</option>
                       {teacherUsers.map((u) => (
-                        <option key={u.id} value={u.id}>
-                          {u.name || u.email}
-                        </option>
+                        <option key={u.id} value={u.id}>{u.name || u.email}</option>
                       ))}
                     </select>
                   </td>
                   <td className="px-5 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      {saved[cls.id] && (
-                        <span className="text-xs text-green-600">Saved</span>
-                      )}
-                      {errors[cls.id] && (
-                        <span className="text-xs text-red-500">{errors[cls.id]}</span>
-                      )}
+                      {saved[cls.id] && <span className="text-xs text-green-600">Saved</span>}
+                      {errors[cls.id] && <span className="text-xs text-danger">{errors[cls.id]}</span>}
                       <button
                         onClick={() => handleSave(cls.id)}
                         disabled={saving[cls.id] || !isDirty}
-                        className="px-3 py-1.5 bg-forest text-white text-xs font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-40"
+                        className="h-8 px-3 bg-accent text-white text-xs font-medium rounded-md hover:bg-accent-hover transition-colors disabled:opacity-40"
                       >
                         {saving[cls.id] ? "Saving…" : "Save"}
                       </button>

@@ -12,7 +12,7 @@ export default async function AppNav({ title, children, fullHeight = false }: Pr
 
   if (fullHeight) {
     return (
-      <div className="h-screen flex overflow-hidden bg-parchment">
+      <div className="h-screen flex overflow-hidden bg-background">
         <AppSidebarClient
           role={me?.role ?? ""}
           userName={me?.name ?? me?.email ?? ""}
@@ -27,7 +27,7 @@ export default async function AppNav({ title, children, fullHeight = false }: Pr
   }
 
   return (
-    <div className="min-h-screen flex bg-parchment">
+    <div className="min-h-screen flex bg-background">
       <AppSidebarClient
         role={me?.role ?? ""}
         userName={me?.name ?? me?.email ?? ""}

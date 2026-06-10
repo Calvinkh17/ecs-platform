@@ -30,7 +30,6 @@ export default function ParentSearch() {
 
     const supabase = createClient();
 
-    // Find ALL student rows matching the name (one per class they're in)
     const { data: students } = await supabase
       .from("students")
       .select("*")
@@ -44,7 +43,6 @@ export default function ParentSearch() {
 
     setStudentName((students[0] as Student).name);
 
-    // Build a report for each class the student appears in
     const reports = await Promise.all(
       (students as Student[]).map(async (student) => {
         const [{ data: cls }, { data: assignments }, { data: grades }] = await Promise.all([
@@ -82,7 +80,7 @@ export default function ParentSearch() {
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-gray-500 text-sm mb-4">
+        <p className="text-secondary text-sm mb-4">
           Enter your child&apos;s name to view their grades.
         </p>
         <form onSubmit={search} className="flex gap-3">
@@ -91,12 +89,12 @@ export default function ParentSearch() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by student name"
-            className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
+            className="flex-1 px-3 h-9 rounded-md border border-border bg-surface-raised text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/40 transition-colors"
           />
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2.5 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light disabled:opacity-50 transition-colors"
+            className="px-5 h-9 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-hover disabled:opacity-50 transition-colors"
           >
             {loading ? "Searching…" : "Search"}
           </button>
@@ -104,7 +102,7 @@ export default function ParentSearch() {
       </div>
 
       {notFound && (
-        <div className="text-center py-10 text-gray-400 bg-white rounded-xl border border-gray-100 text-sm">
+        <div className="text-center py-10 text-muted card rounded-xl text-sm">
           No student found matching &ldquo;{query}&rdquo;.
         </div>
       )}
@@ -112,9 +110,9 @@ export default function ParentSearch() {
       {studentName && report.length > 0 && (
         <div className="space-y-6">
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-primary">
               {studentName}
-              <span className="ml-2 text-sm font-normal text-gray-400">
+              <span className="ml-2 text-sm font-normal text-muted">
                 {report.length} {report.length === 1 ? "class" : "classes"}
               </span>
             </h2>
@@ -123,10 +121,10 @@ export default function ParentSearch() {
               <div className="flex items-center gap-1.5 flex-wrap">
                 <button
                   onClick={() => setActiveClass("all")}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-3 h-8 rounded-md text-sm font-medium transition-colors ${
                     activeClass === "all"
-                      ? "bg-forest text-white"
-                      : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                      ? "bg-accent text-white"
+                      : "border border-border text-secondary hover:bg-surface"
                   }`}
                 >
                   All
@@ -135,10 +133,10 @@ export default function ParentSearch() {
                   <button
                     key={cls?.id}
                     onClick={() => setActiveClass(cls?.id ?? "all")}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    className={`px-3 h-8 rounded-md text-sm font-medium transition-colors ${
                       activeClass === cls?.id
-                        ? "bg-forest text-white"
-                        : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                        ? "bg-accent text-white"
+                        : "border border-border text-secondary hover:bg-surface"
                     }`}
                   >
                     {cls?.name}
@@ -150,12 +148,12 @@ export default function ParentSearch() {
 
           {report.filter(({ cls }) => activeClass === "all" || cls?.id === activeClass).map(({ cls, assignments, avg }) => (
             <div key={cls?.id ?? "unknown"} className="card rounded-xl overflow-hidden">
-              <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="font-medium text-gray-900">{cls?.name ?? "Unknown Class"}</h3>
+              <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+                <h3 className="font-medium text-primary">{cls?.name ?? "Unknown Class"}</h3>
                 {avg !== null && (
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500">Average:</span>
-                    <span className="font-semibold text-gray-900">{avg}</span>
+                    <span className="text-sm text-muted">Average:</span>
+                    <span className="font-semibold text-primary">{avg}</span>
                     <span className={`inline-flex items-center justify-center w-8 h-6 rounded text-xs font-bold ${gradeChip(letterGrade(avg))}`}>
                       {letterGrade(avg)}
                     </span>
@@ -164,25 +162,17 @@ export default function ParentSearch() {
               </div>
 
               {!assignments.length ? (
-                <div className="px-5 py-8 text-center text-gray-400 text-sm">
+                <div className="px-5 py-8 text-center text-muted text-sm">
                   No assignments yet.
                 </div>
               ) : (
                 <table className="w-full text-sm border-collapse">
                   <thead>
-                    <tr className="bg-gray-50">
-                      <th className="text-left px-5 py-3 font-medium text-gray-500 border-b border-gray-100">
-                        Assignment
-                      </th>
-                      <th className="text-center px-5 py-3 font-medium text-gray-500 border-b border-gray-100">
-                        Due Date
-                      </th>
-                      <th className="text-center px-5 py-3 font-medium text-gray-500 border-b border-gray-100">
-                        Score
-                      </th>
-                      <th className="text-center px-5 py-3 font-medium text-gray-500 border-b border-gray-100">
-                        Grade
-                      </th>
+                    <tr className="bg-surface">
+                      <th className="text-left px-5 py-3 font-semibold text-muted text-xs border-b border-border">Assignment</th>
+                      <th className="text-center px-5 py-3 font-semibold text-muted text-xs border-b border-border">Due Date</th>
+                      <th className="text-center px-5 py-3 font-semibold text-muted text-xs border-b border-border">Score</th>
+                      <th className="text-center px-5 py-3 font-semibold text-muted text-xs border-b border-border">Grade</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -190,19 +180,19 @@ export default function ParentSearch() {
                       const score = a.grade?.score ?? null;
                       const letter = score !== null ? letterGrade(score) : null;
                       return (
-                        <tr key={a.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                          <td className="px-5 py-3 text-gray-800">{a.name}</td>
-                          <td className="px-5 py-3 text-center text-gray-500">
+                        <tr key={a.id} className="border-b border-border last:border-0 hover:bg-accent/5 transition-colors">
+                          <td className="px-5 py-3 text-primary">{a.name}</td>
+                          <td className="px-5 py-3 text-center text-muted">
                             {new Date(a.due_date + "T00:00:00").toLocaleDateString()}
                           </td>
-                          <td className="px-5 py-3 text-center text-gray-700">
-                            {score !== null ? score : <span className="text-gray-300">—</span>}
+                          <td className="px-5 py-3 text-center text-secondary">
+                            {score !== null ? score : <span className="text-muted">—</span>}
                           </td>
                           <td className="px-5 py-3 text-center">
                             {letter ? (
                               <span className={`inline-flex items-center justify-center w-8 h-6 rounded text-xs font-bold ${gradeChip(letter)}`}>{letter}</span>
                             ) : (
-                              <span className="text-gray-300">—</span>
+                              <span className="text-muted">—</span>
                             )}
                           </td>
                         </tr>

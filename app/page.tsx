@@ -15,17 +15,17 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-sidebar flex items-center justify-center px-4">
       <div className="text-center space-y-6">
-        <h1 className="font-heading text-3xl font-bold text-sidebar-text">ECS Platform</h1>
+        <h1 className="font-serif text-3xl font-bold text-sidebar-text">ECS Platform</h1>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/teacher"
-            className="px-6 py-3 bg-forest text-sidebar-text rounded-xl font-medium hover:bg-forest-light transition-colors border border-sidebar-border"
+            className="px-6 py-3 bg-accent text-white rounded-xl font-medium hover:bg-accent-hover transition-colors"
           >
             Classes
           </Link>
           <Link
             href="/parent"
-            className="px-6 py-3 bg-white/10 text-sidebar-text rounded-xl font-medium hover:bg-white/20 transition-colors border border-sidebar-border"
+            className="px-6 py-3 bg-white/10 text-sidebar-text rounded-xl font-medium hover:bg-white/20 transition-colors border border-white/20"
           >
             Parent Portal
           </Link>

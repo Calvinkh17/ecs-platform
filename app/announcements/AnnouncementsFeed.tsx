@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { postAnnouncement } from "@/app/actions";
+import { SectionLabel } from "@/components/ui/SectionLabel";
 
 const PAGE_SIZE = 20;
 
@@ -31,9 +32,7 @@ function timeAgo(dateStr: string): string {
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d ago`;
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-  });
+  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
 export default function AnnouncementsFeed({ initialAnnouncements, userNames, canSend, myId }: Props) {
@@ -69,10 +68,7 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
         { event: "INSERT", schema: "public", table: "announcements" },
         (payload) => {
           const raw = payload.new as { id: string; author_id: string; title: string; body: string; created_at: string };
-          const item: AnnouncementItem = {
-            ...raw,
-            author_name: userNamesRef.current[raw.author_id] ?? "Unknown",
-          };
+          const item: AnnouncementItem = { ...raw, author_name: userNamesRef.current[raw.author_id] ?? "Unknown" };
           setAnnouncements(prev => {
             if (prev.some(a => a.id === item.id)) return prev;
             return [item, ...prev];
@@ -120,10 +116,7 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
     fd.append("body", body);
     const result = await postAnnouncement(fd);
     setPosting(false);
-    if (result?.error) {
-      setPostError(result.error);
-      return;
-    }
+    if (result?.error) { setPostError(result.error); return; }
     setTitle("");
     setBody("");
   }
@@ -132,9 +125,7 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
     <div className="space-y-6">
       {canSend && (
         <section className="card rounded-xl p-5">
-          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-            New Announcement
-          </h2>
+          <SectionLabel>New Announcement</SectionLabel>
           <form onSubmit={handlePost} className="space-y-3">
             <input
               type="text"
@@ -142,7 +133,7 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
               onChange={e => setTitle(e.target.value)}
               placeholder="Title"
               required
-              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
+              className="w-full px-3 h-9 rounded-md border border-border bg-surface-raised text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/40 transition-colors"
             />
             <textarea
               value={body}
@@ -150,59 +141,57 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
               placeholder="Write your announcement…"
               required
               rows={4}
-              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent resize-none"
+              className="w-full px-3 py-2 rounded-md border border-border bg-surface-raised text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/40 resize-none transition-colors"
             />
             <div className="flex items-center gap-3">
               <button
                 type="submit"
                 disabled={posting || !title.trim() || !body.trim()}
-                className="px-5 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-5 h-9 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-hover active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {posting ? "Posting…" : "Post Announcement"}
               </button>
-              {postError && <p className="text-sm text-red-500">{postError}</p>}
+              {postError && <p className="text-sm text-danger">{postError}</p>}
             </div>
           </form>
         </section>
       )}
 
       <section>
-        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-          Announcements ({announcements.length}{hasMore ? "+" : ""})
-        </h2>
+        <SectionLabel>Announcements ({announcements.length}{hasMore ? "+" : ""})</SectionLabel>
         {announcements.length === 0 ? (
           <div className="card text-center py-16 rounded-xl">
-            <svg className="mx-auto mb-3 text-gray-300" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="mx-auto mb-3 text-muted" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
-            <p className="text-sm font-medium text-gray-400">No announcements yet</p>
-            <p className="text-xs text-gray-300 mt-1">School announcements will appear here.</p>
+            <p className="text-sm font-medium text-secondary">No announcements yet</p>
+            <p className="text-xs text-muted mt-1">School announcements will appear here.</p>
           </div>
         ) : (
           <>
             <div className="space-y-3">
               {announcements.map(a => (
-                <div key={a.id} className="card rounded-xl p-5 hover:shadow-md transition-shadow duration-150">
+                <div key={a.id} className="card rounded-xl p-5 hover:shadow-elevated transition-shadow duration-150">
                   <div className="flex items-start justify-between gap-4 mb-3">
-                    <h3 className="font-semibold text-gray-900 text-base leading-snug">{a.title}</h3>
-                    <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5">
+                    <h3 className="font-semibold text-primary text-base leading-snug">{a.title}</h3>
+                    <span className="text-xs text-muted whitespace-nowrap flex-shrink-0 mt-0.5">
                       {timeAgo(a.created_at)}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  <p className="text-sm text-secondary whitespace-pre-wrap leading-relaxed">
                     {a.body}
                   </p>
-                  <div className="mt-4 pt-3 border-t border-gray-50 flex items-center gap-2">
+                  <div className="mt-4 pt-3 border-t border-border flex items-center gap-2">
                     <div
                       className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold select-none flex-shrink-0"
                       style={{
-                        background: `hsl(${(a.author_name.charCodeAt(0) * 37) % 360}deg 35% 88%)`,
-                        color: `hsl(${(a.author_name.charCodeAt(0) * 37) % 360}deg 35% 35%)`,
+                        background: `hsl(${(a.author_name.charCodeAt(0) * 37) % 360}deg 50% 50%)`,
+                        color: "white",
                       }}
                     >
                       {a.author_name.charAt(0).toUpperCase()}
                     </div>
-                    <p className="text-xs text-gray-400">{a.author_name}</p>
+                    <p className="text-xs text-muted">{a.author_name}</p>
                   </div>
                 </div>
               ))}
@@ -212,7 +201,7 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
                 <button
                   onClick={loadMore}
                   disabled={loadingMore}
-                  className="px-5 py-2 border border-gray-200 text-sm text-gray-600 font-medium rounded-lg hover:bg-gray-50 hover:border-gray-300 active:scale-95 transition-all disabled:opacity-40"
+                  className="px-5 h-9 border border-border text-sm text-secondary font-medium rounded-md hover:bg-surface hover:border-border-strong active:scale-95 transition-all disabled:opacity-40"
                 >
                   {loadingMore ? "Loading…" : "Load more announcements"}
                 </button>

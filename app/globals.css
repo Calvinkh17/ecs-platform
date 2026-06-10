@@ -1,49 +1,97 @@
 @import "tailwindcss";
 
-@theme {
-  /* Typography */
-  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
-  --font-heading: var(--font-playfair), Georgia, "Times New Roman", serif;
+/* Class-based dark mode */
+@variant dark (&:where(.dark, .dark *));
 
-  /* Sidebar */
-  --color-sidebar: #1b2e24;
-  --color-sidebar-raised: #254035;
-  --color-sidebar-text: #e8e3d8;
-  --color-sidebar-dim: #87a897;
-  --color-sidebar-border: #2d4a3a;
-
-  /* Content palette */
-  --color-parchment: #f7f4ef;
-  --color-ink: #1a1714;
-  --color-clay: #6b5e52;
-  --color-rule: #ddd8ce;
-
-  /* Primary action color (deep forest) */
-  --color-forest: #1b2e24;
-  --color-forest-light: #254035;
-
-  /* Accent (warm gold) */
-  --color-gold: #c4923b;
-  --color-gold-deep: #a67a2d;
+/* ── Light mode design tokens ───────────────────────────────────────────── */
+:root {
+  --theme-bg: #FFFFFF;
+  --theme-surface: #F5F5F5;
+  --theme-surface-raised: #FFFFFF;
+  --theme-border: #E5E5E5;
+  --theme-border-strong: #CCCCCC;
+  --theme-primary: #111111;
+  --theme-secondary: #444444;
+  --theme-muted: #888888;
+  --theme-accent: #D4600A;
+  --theme-accent-hover: #B85208;
+  --theme-accent-faint: #FEF3EC;
+  --theme-danger: #C0392B;
+  --theme-danger-faint: #FDF0EF;
+  --theme-sidebar: #111111;
+  --theme-sidebar-text: #FFFFFF;
+  --theme-sidebar-muted: #888888;
+  --theme-sidebar-active: #D4600A;
 }
 
+/* ── Dark mode overrides ────────────────────────────────────────────────── */
+.dark {
+  --theme-bg: #0F1117;
+  --theme-surface: #1A1D24;
+  --theme-surface-raised: #21252E;
+  --theme-border: #2A2D35;
+  --theme-border-strong: #3A3D45;
+  --theme-primary: #F0F0F0;
+  --theme-secondary: #AAAAAA;
+  --theme-muted: #666666;
+  --theme-accent: #E8732A;
+  --theme-accent-hover: #F08040;
+  --theme-accent-faint: #2A1A0F;
+  --theme-danger: #E05555;
+  --theme-danger-faint: #2A1010;
+  --theme-sidebar: #0A0C10;
+  --theme-sidebar-text: #F0F0F0;
+  --theme-sidebar-muted: #666666;
+  --theme-sidebar-active: #E8732A;
+}
+
+/* ── Tailwind token registration ────────────────────────────────────────── */
+@theme inline {
+  --color-background: var(--theme-bg);
+  --color-surface: var(--theme-surface);
+  --color-surface-raised: var(--theme-surface-raised);
+  --color-border: var(--theme-border);
+  --color-border-strong: var(--theme-border-strong);
+  --color-primary: var(--theme-primary);
+  --color-secondary: var(--theme-secondary);
+  --color-muted: var(--theme-muted);
+  --color-accent: var(--theme-accent);
+  --color-accent-hover: var(--theme-accent-hover);
+  --color-accent-faint: var(--theme-accent-faint);
+  --color-danger: var(--theme-danger);
+  --color-danger-faint: var(--theme-danger-faint);
+  --color-sidebar: var(--theme-sidebar);
+  --color-sidebar-text: var(--theme-sidebar-text);
+  --color-sidebar-muted: var(--theme-sidebar-muted);
+  --color-sidebar-active: var(--theme-sidebar-active);
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
+
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-elevated: 0 4px 12px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.06);
+}
+
+/* ── Keyframes ──────────────────────────────────────────────────────────── */
 @keyframes shimmer {
   from { background-position: 200% 0; }
   to { background-position: -200% 0; }
 }
 
+/* ── Card utility ───────────────────────────────────────────────────────── */
 @layer utilities {
   .card {
-    background-color: white;
-    border: 1px solid #E5E0D8;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    background-color: var(--theme-surface-raised);
+    border: 1px solid var(--theme-border);
+    box-shadow: var(--shadow-card);
   }
 }
 
+/* ── Base styles ────────────────────────────────────────────────────────── */
 @layer base {
   body {
-    background-color: var(--color-parchment);
-    color: var(--color-ink);
+    background-color: var(--theme-bg);
+    color: var(--theme-primary);
   }
 
   ::-webkit-scrollbar {
@@ -54,10 +102,10 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background-color: var(--color-rule);
+    background-color: var(--theme-border);
     border-radius: 999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background-color: #c4b8a8;
+    background-color: var(--theme-border-strong);
   }
 }
