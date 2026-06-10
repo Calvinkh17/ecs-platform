@@ -334,19 +334,19 @@ export default function ChatLayout({ channels, staffUsers, myId, myName }: Props
         </div>
         <div className="flex-1 overflow-y-auto py-2">
           {channels.length === 0 ? (
-            <p className="px-4 py-3 text-sm text-gray-400">No channels yet.</p>
+            <p className="px-4 py-3 text-sm text-gray-400 italic">No channels yet.</p>
           ) : (
             channels.map((ch) => (
               <button
                 key={ch.id}
                 onClick={() => selectChannel(ch.id)}
-                className={`w-full text-left px-4 py-2.5 flex items-center gap-2 text-sm transition-colors ${
+                className={`w-full text-left px-3 py-2 mx-1 rounded-lg flex items-center gap-2 text-sm transition-all ${
                   activeId === ch.id
-                    ? "bg-forest text-white"
-                    : "text-gray-700 hover:bg-gray-50"
+                    ? "bg-forest text-white shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                 }`}
               >
-                <span className={activeId === ch.id ? "text-gray-300" : "text-gray-400"}>#</span>
+                <span className={`font-mono text-base leading-none ${activeId === ch.id ? "text-gray-300" : "text-gray-400"}`}>#</span>
                 <span className="truncate font-medium">{ch.name}</span>
               </button>
             ))
@@ -362,10 +362,13 @@ export default function ChatLayout({ channels, staffUsers, myId, myName }: Props
         `}
       >
         {!activeChannel ? (
-          <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
-            {channels.length === 0
-              ? "You are not a member of any channels yet."
-              : "Select a channel to start chatting."}
+          <div className="flex-1 flex flex-col items-center justify-center text-gray-400 gap-3">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            <p className="text-sm font-medium">
+              {channels.length === 0 ? "You are not a member of any channels yet." : "Select a channel to start chatting."}
+            </p>
           </div>
         ) : (
           <>
@@ -397,10 +400,29 @@ export default function ChatLayout({ channels, staffUsers, myId, myName }: Props
               className="flex-1 overflow-y-auto px-5 py-4 space-y-0.5"
             >
               {loadingMsgs ? (
-                <div className="flex justify-center pt-8 text-sm text-gray-400">Loading…</div>
+                <div className="space-y-4 pt-2">
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <div key={i} className={`flex gap-3 items-start ${i === 1 || i === 4 ? "mt-5" : ""}`}>
+                      {(i === 0 || i === 2 || i === 4) ? (
+                        <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse flex-shrink-0" />
+                      ) : (
+                        <div className="w-8 flex-shrink-0" />
+                      )}
+                      <div className="space-y-1.5 max-w-xs">
+                        {(i === 0 || i === 2 || i === 4) && (
+                          <div className="h-3 w-20 rounded bg-gray-200 animate-pulse" />
+                        )}
+                        <div className="h-4 rounded bg-gray-200 animate-pulse" style={{ width: `${120 + (i * 47) % 100}px` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               ) : messages.length === 0 ? (
-                <div className="flex justify-center pt-8 text-sm text-gray-400">
-                  No messages yet. Say something!
+                <div className="flex flex-col items-center justify-center flex-1 pt-16 gap-2 text-gray-400">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                  <p className="text-sm">No messages yet — say something!</p>
                 </div>
               ) : (
                 messages.map((msg, i) => {
@@ -413,13 +435,19 @@ export default function ChatLayout({ channels, staffUsers, myId, myName }: Props
                   return (
                     <div
                       key={msg.id}
-                      className={`group flex gap-2.5 px-2 py-0.5 rounded-lg transition-colors ${
+                      className={`group relative flex gap-2.5 px-2 py-0.5 rounded-lg transition-colors ${
                         isMentioned ? "bg-yellow-50 border border-yellow-100" : "hover:bg-white"
                       } ${sameAuthor ? "" : "mt-3"}`}
                     >
                       {/* Avatar */}
                       {!sameAuthor ? (
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center text-xs font-bold text-gray-500 mt-0.5">
+                        <div
+                          className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold mt-0.5 select-none"
+                          style={{
+                            background: `hsl(${(msg.author_name.charCodeAt(0) * 37) % 360}deg 40% 88%)`,
+                            color: `hsl(${(msg.author_name.charCodeAt(0) * 37) % 360}deg 40% 35%)`,
+                          }}
+                        >
                           {msg.author_name.charAt(0).toUpperCase()}
                         </div>
                       ) : (
@@ -439,6 +467,11 @@ export default function ChatLayout({ channels, staffUsers, myId, myName }: Props
                           {renderBody(msg.body, msg.mentionedIds, myId)}
                         </p>
                       </div>
+                      {sameAuthor && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none select-none">
+                          {formatTime(msg.created_at)}
+                        </span>
+                      )}
                     </div>
                   );
                 })

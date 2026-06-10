@@ -16,10 +16,12 @@ function GradeRow({
   student,
   assignment,
   initialScore,
+  index,
 }: {
   student: Student;
   assignment: Assignment;
   initialScore: number | null;
+  index: number;
 }) {
   const [editing, setEditing] = useState(false);
   const [score, setScore] = useState<string>(initialScore !== null ? String(initialScore) : "");
@@ -38,7 +40,7 @@ function GradeRow({
   }
 
   return (
-    <div className="flex items-center justify-between px-5 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
+    <div className={`flex items-center justify-between px-5 py-3 border-b border-gray-50 last:border-0 hover:bg-blue-50/20 transition-colors ${index % 2 === 0 ? "" : "bg-gray-50/30"}`}>
       <span className="text-sm font-medium text-gray-800">{student.name}</span>
       <div className="flex items-center gap-3">
         {editing ? (
@@ -128,12 +130,16 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
 
   if (!students.length || !assignments.length) {
     return (
-      <div className="text-center py-12 text-gray-400 bg-white rounded-xl border border-rule text-sm">
-        {!students.length && !assignments.length
-          ? "Add students and assignments to start grading."
-          : !students.length
-          ? "Add students to start grading."
-          : "Add assignments to start grading."}
+      <div className="text-center py-14 text-gray-400 bg-white rounded-xl border border-rule shadow-sm text-sm">
+        <svg className="mx-auto mb-3 text-gray-200" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/><line x1="15" y1="9" x2="15" y2="21"/>
+        </svg>
+        <p className="font-medium text-gray-400">
+          {!students.length && !assignments.length
+            ? "Add students and assignments to start grading."
+            : !students.length
+            ? "Add students to start grading."
+            : "Add assignments to start grading."}</p>
       </div>
     );
   }
@@ -151,7 +157,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
   return (
     <div className="flex gap-4 items-start">
       {/* Assignment list */}
-      <div className="w-56 flex-shrink-0 bg-white border border-rule rounded-xl overflow-hidden">
+      <div className="w-56 flex-shrink-0 bg-white border border-rule rounded-xl overflow-hidden shadow-sm">
         <div className="px-4 py-3 border-b border-rule bg-gray-50">
           <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Assignments</span>
         </div>
@@ -193,7 +199,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
       </div>
 
       {/* Assignment detail */}
-      <div className="flex-1 bg-white border border-rule rounded-xl overflow-hidden">
+      <div className="flex-1 bg-white border border-rule rounded-xl overflow-hidden shadow-sm">
         {/* Header with average widget */}
         <div className="px-5 py-4 border-b border-rule flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
@@ -271,12 +277,13 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
             <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Student</span>
             <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Score / Grade</span>
           </div>
-          {visibleStudents.map((s) => (
+          {visibleStudents.map((s, i) => (
             <GradeRow
               key={`${s.id}-${assignment.id}`}
               student={s}
               assignment={assignment}
               initialScore={gradeMap[s.id]?.[assignment.id]?.score ?? null}
+              index={i}
             />
           ))}
         </div>

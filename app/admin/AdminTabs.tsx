@@ -91,18 +91,26 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
   return (
     <div className="space-y-8">
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-100 flex-wrap">
+      <div className="flex gap-0.5 border-b border-gray-100 flex-wrap -mb-px">
         {(["users", "students", "parents", "observations", "announcements", "channels", "classes"] as const).map(t => (
           <button
             key={t}
             onClick={() => changeTab(t)}
-            className={`px-4 py-2 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
+            className={`px-4 py-2.5 text-sm font-medium capitalize transition-all border-b-2 ${
               tab === t
-                ? "border-gold text-ink"
-                : "border-transparent text-gray-400 hover:text-gray-700"
-            }`}
+                ? "border-gold text-ink bg-gold/5"
+                : "border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-50"
+            } rounded-t-lg`}
           >
-            {t === "users" ? `Users (${users.length})` : t === "students" ? `Students (${roster.length})` : t === "parents" ? `Parents (${links.length})` : t === "observations" ? "Observations" : t === "announcements" ? "Announcements" : t === "channels" ? "Channels" : `Classes (${initialClasses.length})`}
+            {t === "users" ? `Users` : t === "students" ? `Students` : t === "parents" ? `Parents` : t === "observations" ? "Observations" : t === "announcements" ? "Announcements" : t === "channels" ? "Channels" : `Classes`}
+            {(t === "users" || t === "students" || t === "parents" || t === "classes") && (
+              <span className={`ml-1.5 text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${tab === t ? "bg-gold/20 text-gold-deep" : "bg-gray-100 text-gray-400"}`}>
+                {t === "users" ? users.length : t === "students" ? roster.length : t === "parents" ? links.length : initialClasses.length}
+              </span>
+            )}
+            {t === "users" && pending.length > 0 && tab !== "users" && (
+              <span className="ml-1 w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+            )}
           </button>
         ))}
       </div>
@@ -110,18 +118,39 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
       {/* ── Users tab ── */}
       {tab === "users" && (
         <div className="space-y-8">
+          {/* Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 space-y-0.5">
+              <div className="text-2xl font-bold text-gray-900">{users.length}</div>
+              <div className="text-xs text-gray-400">Total Users</div>
+            </div>
+            <div className={`rounded-xl border shadow-sm px-4 py-3 space-y-0.5 ${pending.length > 0 ? "bg-amber-50 border-amber-100" : "bg-white border-gray-100"}`}>
+              <div className={`text-2xl font-bold ${pending.length > 0 ? "text-amber-600" : "text-gray-900"}`}>{pending.length}</div>
+              <div className={`text-xs ${pending.length > 0 ? "text-amber-600/70" : "text-gray-400"}`}>Pending Approval</div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 space-y-0.5">
+              <div className="text-2xl font-bold text-blue-700">{users.filter(u => u.role === "teacher").length}</div>
+              <div className="text-xs text-gray-400">Teachers</div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 space-y-0.5">
+              <div className="text-2xl font-bold text-green-700">{users.filter(u => u.role === "parent").length}</div>
+              <div className="text-xs text-gray-400">Parents</div>
+            </div>
+          </div>
+
           <section>
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
               Pending Approval ({pending.length})
             </h2>
             {pending.length === 0 ? (
-              <div className="text-center py-10 text-gray-400 bg-white rounded-xl border border-gray-100 text-sm">
-                No pending users.
+              <div className="text-center py-8 text-gray-400 bg-white rounded-xl border border-gray-100 shadow-sm text-sm">
+                <svg className="mx-auto mb-2 text-gray-300" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                All users have been approved.
               </div>
             ) : (
               <ul className="space-y-2">
                 {pending.map(u => (
-                  <li key={u.id} className="bg-white border border-yellow-100 rounded-xl px-5 py-4 flex items-center justify-between gap-4">
+                  <li key={u.id} className="bg-amber-50 border border-amber-100 rounded-xl px-5 py-4 flex items-center justify-between gap-4 shadow-sm">
                     <div>
                       <p className="font-medium text-gray-900">{u.name}</p>
                       <p className="text-sm text-gray-400">{u.email}</p>
@@ -148,14 +177,14 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
               All Users ({users.length})
             </h2>
-            <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+            <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">
-                    <th className="text-left px-5 py-3 font-medium text-gray-500">Name</th>
-                    <th className="text-left px-5 py-3 font-medium text-gray-500">Email</th>
-                    <th className="text-left px-5 py-3 font-medium text-gray-500">Role</th>
-                    <th className="text-left px-5 py-3 font-medium text-gray-500">Change Role</th>
+                    <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Name</th>
+                    <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Email</th>
+                    <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Role</th>
+                    <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Change Role</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -196,7 +225,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
       {/* ── Students tab ── */}
       {tab === "students" && (
         <div className="space-y-6">
-          <section className="bg-white border border-gray-100 rounded-xl p-5">
+          <section className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
               Add Student to Roster
             </h2>
@@ -287,20 +316,20 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
               </div>
             </div>
             {filtered.length === 0 ? (
-              <div className="text-center py-10 text-gray-400 bg-white rounded-xl border border-gray-100 text-sm">
-                {roster.length === 0 ? "No students in the roster yet." : "No students match the selected filters."}
+              <div className="text-center py-12 bg-white rounded-xl border border-gray-100 shadow-sm">
+                <p className="text-sm text-gray-400">{roster.length === 0 ? "No students in the roster yet — add one above." : "No students match the selected filters."}</p>
               </div>
             ) : (
-              <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+              <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-100">
-                      <th className="text-left px-5 py-3 font-medium text-gray-500">Name</th>
-                      <th className="text-left px-5 py-3 font-medium text-gray-500">Grade</th>
-                      <th className="text-left px-5 py-3 font-medium text-gray-500">Year Joined</th>
-                      <th className="text-left px-5 py-3 font-medium text-gray-500">Graduating Year</th>
-                      <th className="text-left px-5 py-3 font-medium text-gray-500">Email</th>
-                      <th className="px-5 py-3" />
+                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Name</th>
+                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Grade</th>
+                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Year Joined</th>
+                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Graduating Year</th>
+                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Email</th>
+                      <th className="px-5 py-3.5" />
                     </tr>
                   </thead>
                   <tbody>
@@ -482,7 +511,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
       {/* ── Parents tab ── */}
       {tab === "parents" && (
         <div className="space-y-6">
-          <section className="bg-white border border-gray-100 rounded-xl p-5">
+          <section className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
               Link Parent to Student
             </h2>
@@ -558,14 +587,14 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                 No links yet.
               </div>
             ) : (
-              <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+              <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-100">
-                      <th className="text-left px-5 py-3 font-medium text-gray-500">Parent</th>
-                      <th className="text-left px-5 py-3 font-medium text-gray-500">Email</th>
-                      <th className="text-left px-5 py-3 font-medium text-gray-500">Student</th>
-                      <th className="px-5 py-3" />
+                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Parent</th>
+                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Email</th>
+                      <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Student</th>
+                      <th className="px-5 py-3.5" />
                     </tr>
                   </thead>
                   <tbody>

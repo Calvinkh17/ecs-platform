@@ -52,9 +52,9 @@ function GradeTable({ classes }: { classes: ClassReport[] }) {
       )}
 
       {visible.map(({ cls, assignments, avg }) => (
-        <div key={cls?.id ?? "unknown"} className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+        <div key={cls?.id ?? "unknown"} className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 className="font-medium text-gray-900">{cls?.name ?? "Unknown Class"}</h3>
+            <h3 className="font-semibold text-gray-900">{cls?.name ?? "Unknown Class"}</h3>
             {avg !== null && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-500">Average:</span>
@@ -64,28 +64,30 @@ function GradeTable({ classes }: { classes: ClassReport[] }) {
             )}
           </div>
           {!assignments.length ? (
-            <div className="px-5 py-8 text-center text-gray-400 text-sm">No assignments yet.</div>
+            <div className="px-5 py-10 text-center">
+              <p className="text-sm text-gray-400">No assignments yet.</p>
+            </div>
           ) : (
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="text-left px-5 py-3 font-medium text-gray-500 border-b border-gray-100">Assignment</th>
-                  <th className="text-center px-5 py-3 font-medium text-gray-500 border-b border-gray-100">Due Date</th>
-                  <th className="text-center px-5 py-3 font-medium text-gray-500 border-b border-gray-100">Score</th>
-                  <th className="text-center px-5 py-3 font-medium text-gray-500 border-b border-gray-100">Grade</th>
+                  <th className="text-left px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">Assignment</th>
+                  <th className="text-center px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">Due Date</th>
+                  <th className="text-center px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">Score</th>
+                  <th className="text-center px-5 py-3.5 font-semibold text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">Grade</th>
                 </tr>
               </thead>
               <tbody>
-                {assignments.map((a) => {
+                {assignments.map((a, idx) => {
                   const score = a.grade?.score ?? null;
                   const letter = score !== null ? letterGrade(score) : null;
                   return (
-                    <tr key={a.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                      <td className="px-5 py-3 text-gray-800">{a.name}</td>
+                    <tr key={a.id} className={`border-b border-gray-50 last:border-0 hover:bg-blue-50/20 transition-colors ${idx % 2 === 1 ? "bg-gray-50/30" : ""}`}>
+                      <td className="px-5 py-3 font-medium text-gray-800">{a.name}</td>
                       <td className="px-5 py-3 text-center text-gray-500">
                         {new Date(a.due_date + "T00:00:00").toLocaleDateString()}
                       </td>
-                      <td className="px-5 py-3 text-center text-gray-700">
+                      <td className="px-5 py-3 text-center text-gray-700 font-medium">
                         {score !== null ? score : <span className="text-gray-300">—</span>}
                       </td>
                       <td className="px-5 py-3 text-center">
@@ -176,8 +178,12 @@ export default function ParentView({ childrenData }: Props) {
 
   if (childrenData.length === 0) {
     return (
-      <div className="text-center py-16 text-gray-400 bg-white rounded-xl border border-gray-100 text-sm">
-        No students linked to your account yet. Contact your administrator.
+      <div className="text-center py-20 bg-white rounded-xl border border-gray-100 shadow-sm">
+        <svg className="mx-auto mb-3 text-gray-300" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <p className="text-sm font-medium text-gray-400">No students linked yet</p>
+        <p className="text-xs text-gray-300 mt-1">Contact your school administrator to link your children.</p>
       </div>
     );
   }
@@ -229,8 +235,12 @@ export default function ParentView({ childrenData }: Props) {
       </div>
 
       {child.classes.length === 0 ? (
-        <div className="text-center py-10 text-gray-400 bg-white rounded-xl border border-gray-100 text-sm">
-          This student is not enrolled in any classes yet.
+        <div className="text-center py-14 bg-white rounded-xl border border-gray-100 shadow-sm">
+          <svg className="mx-auto mb-3 text-gray-300" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+          <p className="text-sm font-medium text-gray-400">Not enrolled in any classes yet</p>
+          <p className="text-xs text-gray-300 mt-1">Contact your teacher or administrator for enrollment.</p>
         </div>
       ) : (
         <GradeTable classes={child.classes} />

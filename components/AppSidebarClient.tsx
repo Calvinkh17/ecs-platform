@@ -262,7 +262,7 @@ export default function AppSidebarClient({ role, userName, userId, title }: Prop
       <div
         className={[
           "hidden lg:flex flex-col flex-shrink-0 bg-sidebar h-screen sticky top-0",
-          "transition-all duration-200 ease-in-out",
+          "transition-all duration-250 ease-[cubic-bezier(0.22,1,0.36,1)]",
           collapsed ? "w-16" : "w-64",
         ].join(" ")}
       >
@@ -301,18 +301,18 @@ export default function AppSidebarClient({ role, userName, userId, title }: Prop
       {/* ── Mobile overlay ───────────────────────────────────── */}
       <div
         className={[
-          "lg:hidden fixed inset-0 z-50 transition-opacity duration-200",
+          "lg:hidden fixed inset-0 z-50 transition-opacity duration-300",
           mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
         ].join(" ")}
       >
         {/* Backdrop */}
-        <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" onClick={() => setMobileOpen(false)} />
 
         {/* Drawer */}
         <div
           className={[
             "absolute left-0 top-0 bottom-0 w-72 bg-sidebar flex flex-col shadow-2xl",
-            "transition-transform duration-200",
+            "transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
             mobileOpen ? "translate-x-0" : "-translate-x-full",
           ].join(" ")}
         >

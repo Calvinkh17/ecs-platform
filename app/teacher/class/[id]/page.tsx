@@ -50,29 +50,31 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
       <main className="max-w-6xl mx-auto px-6 py-8 space-y-10">
         {/* Add Student + Add Assignment */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <section className="bg-white border border-gray-100 rounded-xl p-5">
+          <section className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
               Add Student
             </h2>
             <AddStudentDropdown classId={id} rosterStudents={availableRoster} />
             {students?.length ? (
-              <ul className="mt-3 space-y-1">
+              <ul className="mt-4 divide-y divide-gray-50 border border-gray-100 rounded-lg overflow-hidden">
                 {(students as Student[]).map((s) => (
-                  <li key={s.id} className="text-sm text-gray-700 px-1 py-1 flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0" />
-                      {s.name}
+                  <li key={s.id} className="text-sm text-gray-700 px-3 py-2.5 flex items-center justify-between gap-2 hover:bg-gray-50/60 transition-colors">
+                    <span className="flex items-center gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-400 flex-shrink-0 select-none">
+                        {s.name.charAt(0).toUpperCase()}
+                      </span>
+                      <span className="font-medium text-gray-800">{s.name}</span>
                     </span>
                     <DeleteStudentButton id={s.id} name={s.name} />
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="mt-3 text-xs text-gray-400">No students yet.</p>
+              <p className="mt-4 text-xs text-gray-400 py-3 text-center border border-dashed border-gray-200 rounded-lg">No students enrolled yet — add one above.</p>
             )}
           </section>
 
-          <section className="bg-white border border-gray-100 rounded-xl p-5">
+          <section className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
               Add Assignment
             </h2>
@@ -94,21 +96,18 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors"
+                  className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light active:scale-95 transition-all"
                 >
                   Add
                 </button>
               </div>
             </form>
             {assignments?.length ? (
-              <ul className="mt-3 space-y-1">
+              <ul className="mt-4 divide-y divide-gray-50 border border-gray-100 rounded-lg overflow-hidden">
                 {(assignments as Assignment[]).map((a) => (
-                  <li key={a.id} className="text-sm text-gray-700 px-1 py-1 flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0" />
-                      {a.name}
-                    </span>
-                    <span className="flex items-center gap-3">
+                  <li key={a.id} className="text-sm text-gray-700 px-3 py-2.5 flex items-center justify-between gap-2 hover:bg-gray-50/60 transition-colors">
+                    <span className="font-medium text-gray-800 truncate">{a.name}</span>
+                    <span className="flex items-center gap-3 flex-shrink-0">
                       <span className="text-xs text-gray-400">
                         Due {new Date(a.due_date + "T00:00:00").toLocaleDateString()}
                       </span>
@@ -118,14 +117,14 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
                 ))}
               </ul>
             ) : (
-              <p className="mt-3 text-xs text-gray-400">No assignments yet.</p>
+              <p className="mt-4 text-xs text-gray-400 py-3 text-center border border-dashed border-gray-200 rounded-lg">No assignments yet — add one above.</p>
             )}
           </section>
         </div>
 
         {/* Gradebook */}
         <section>
-          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
+          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">
             Gradebook
           </h2>
           <GradebookSection

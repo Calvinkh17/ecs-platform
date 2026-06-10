@@ -131,7 +131,7 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
   return (
     <div className="space-y-6">
       {canSend && (
-        <section className="bg-white border border-gray-100 rounded-xl p-5">
+        <section className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
           <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
             New Announcement
           </h2>
@@ -156,9 +156,9 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
               <button
                 type="submit"
                 disabled={posting || !title.trim() || !body.trim()}
-                className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-50"
+                className="px-5 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {posting ? "Posting…" : "Post"}
+                {posting ? "Posting…" : "Post Announcement"}
               </button>
               {postError && <p className="text-sm text-red-500">{postError}</p>}
             </div>
@@ -171,24 +171,39 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
           Announcements ({announcements.length}{hasMore ? "+" : ""})
         </h2>
         {announcements.length === 0 ? (
-          <div className="text-center py-12 text-gray-400 bg-white rounded-xl border border-gray-100 text-sm">
-            No announcements yet.
+          <div className="text-center py-16 bg-white rounded-xl border border-gray-100 shadow-sm">
+            <svg className="mx-auto mb-3 text-gray-300" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <p className="text-sm font-medium text-gray-400">No announcements yet</p>
+            <p className="text-xs text-gray-300 mt-1">School announcements will appear here.</p>
           </div>
         ) : (
           <>
             <div className="space-y-3">
               {announcements.map(a => (
-                <div key={a.id} className="bg-white border border-gray-100 rounded-xl p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <h3 className="font-semibold text-gray-900 text-base">{a.title}</h3>
+                <div key={a.id} className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-150">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <h3 className="font-semibold text-gray-900 text-base leading-snug">{a.title}</h3>
                     <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5">
                       {timeAgo(a.created_at)}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
                     {a.body}
                   </p>
-                  <p className="mt-3 text-xs text-gray-400">Posted by {a.author_name}</p>
+                  <div className="mt-4 pt-3 border-t border-gray-50 flex items-center gap-2">
+                    <div
+                      className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold select-none flex-shrink-0"
+                      style={{
+                        background: `hsl(${(a.author_name.charCodeAt(0) * 37) % 360}deg 35% 88%)`,
+                        color: `hsl(${(a.author_name.charCodeAt(0) * 37) % 360}deg 35% 35%)`,
+                      }}
+                    >
+                      {a.author_name.charAt(0).toUpperCase()}
+                    </div>
+                    <p className="text-xs text-gray-400">{a.author_name}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -197,9 +212,9 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
                 <button
                   onClick={loadMore}
                   disabled={loadingMore}
-                  className="px-5 py-2 border border-gray-200 text-sm text-gray-600 font-medium rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  className="px-5 py-2 border border-gray-200 text-sm text-gray-600 font-medium rounded-lg hover:bg-gray-50 hover:border-gray-300 active:scale-95 transition-all disabled:opacity-40"
                 >
-                  {loadingMore ? "Loading…" : "Load More"}
+                  {loadingMore ? "Loading…" : "Load more announcements"}
                 </button>
               </div>
             )}
