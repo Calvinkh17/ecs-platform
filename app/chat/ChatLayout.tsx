@@ -33,12 +33,11 @@ function formatTime(dateStr: string): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + " " + time;
 }
 
-function renderBody(body: string, mentionedIds: string[], myId: string): React.ReactNode {
-  const isMentioned = mentionedIds.includes(myId);
+function renderBody(body: string, isMe: boolean): React.ReactNode {
   const segments = body.split(/(@\S+)/g);
   return segments.map((seg, i) =>
     seg.startsWith("@") ? (
-      <span key={i} className={`font-semibold ${isMentioned ? "text-gold-deep" : "text-forest"}`}>
+      <span key={i} className={`font-semibold ${isMe ? "text-white/70" : "text-gold-deep"}`}>
         {seg}
       </span>
     ) : seg
@@ -397,136 +396,176 @@ export default function ChatLayout({ channels, staffUsers, myId, myName }: Props
             <div
               ref={msgContainerRef}
               onScroll={handleScroll}
-              className="flex-1 overflow-y-auto px-5 py-4 space-y-0.5"
+              className="flex-1 overflow-y-auto px-4 py-5 bg-parchment"
             >
               {loadingMsgs ? (
-                <div className="space-y-4 pt-2">
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <div key={i} className={`flex gap-3 items-start ${i === 1 || i === 4 ? "mt-5" : ""}`}>
-                      {(i === 0 || i === 2 || i === 4) ? (
-                        <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse flex-shrink-0" />
-                      ) : (
-                        <div className="w-8 flex-shrink-0" />
-                      )}
-                      <div className="space-y-1.5 max-w-xs">
-                        {(i === 0 || i === 2 || i === 4) && (
-                          <div className="h-3 w-20 rounded bg-gray-200 animate-pulse" />
-                        )}
-                        <div className="h-4 rounded bg-gray-200 animate-pulse" style={{ width: `${120 + (i * 47) % 100}px` }} />
-                      </div>
+                /* iMessage-style skeleton */
+                <div className="flex flex-col">
+                  {[
+                    { isMe: false, w: 160, first: true },
+                    { isMe: false, w: 210, first: false },
+                    { isMe: true,  w: 130, first: true },
+                    { isMe: false, w: 185, first: true },
+                    { isMe: true,  w: 240, first: true },
+                    { isMe: true,  w: 170, first: false },
+                  ].map((s, i) => (
+                    <div
+                      key={i}
+                      className={`flex ${s.isMe ? "justify-end" : "justify-start"} ${s.first && i > 0 ? "mt-4" : "mt-0.5"}`}
+                    >
+                      <div
+                        className="h-9 rounded-[18px] animate-pulse"
+                        style={{
+                          width: s.w,
+                          backgroundColor: s.isMe ? "#1B2E24" : "#e5e1db",
+                          opacity: s.isMe ? 0.3 : 1,
+                        }}
+                      />
                     </div>
                   ))}
                 </div>
               ) : messages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center flex-1 pt-16 gap-2 text-gray-400">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300">
+                <div className="flex flex-col items-center justify-center h-full gap-3 text-gray-400">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
-                  <p className="text-sm">No messages yet — say something!</p>
+                  <p className="text-sm font-medium">No messages yet — say something!</p>
                 </div>
               ) : (
-                messages.map((msg, i) => {
-                  const isMe = msg.author_id === myId;
-                  const isMentioned = msg.mentionedIds.includes(myId);
-                  const prevMsg = i > 0 ? messages[i - 1] : null;
-                  const sameAuthor = prevMsg?.author_id === msg.author_id &&
-                    new Date(msg.created_at).getTime() - new Date(prevMsg.created_at).getTime() < 5 * 60000;
+                <div className="flex flex-col">
+                  {messages.map((msg, i) => {
+                    const isMe = msg.author_id === myId;
+                    const prevMsg = i > 0 ? messages[i - 1] : null;
+                    const nextMsg = i < messages.length - 1 ? messages[i + 1] : null;
 
-                  return (
-                    <div
-                      key={msg.id}
-                      className={`group relative flex gap-2.5 px-2 py-0.5 rounded-lg transition-colors ${
-                        isMentioned ? "bg-gold/10 border border-gold/20" : "hover:bg-white/70"
-                      } ${sameAuthor ? "" : "mt-3"}`}
-                    >
-                      {/* Avatar */}
-                      {!sameAuthor ? (
-                        <div
-                          className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold mt-0.5 select-none"
-                          style={{
-                            background: `hsl(${(msg.author_name.charCodeAt(0) * 37) % 360}deg 40% 88%)`,
-                            color: `hsl(${(msg.author_name.charCodeAt(0) * 37) % 360}deg 40% 35%)`,
-                          }}
-                        >
-                          {msg.author_name.charAt(0).toUpperCase()}
-                        </div>
-                      ) : (
-                        <div className="w-8 flex-shrink-0" />
-                      )}
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        {!sameAuthor && (
-                          <div className="flex items-baseline gap-2 mb-0.5">
-                            <span className={`text-sm font-semibold ${isMe ? "text-forest" : "text-gray-900"}`}>
-                              {isMe ? "You" : msg.author_name}
-                            </span>
-                            <span className="text-[11px] text-gray-400">{formatTime(msg.created_at)}</span>
-                          </div>
+                    const sameAuthorPrev = prevMsg?.author_id === msg.author_id &&
+                      new Date(msg.created_at).getTime() - new Date(prevMsg.created_at).getTime() < 5 * 60000;
+                    const sameAuthorNext = nextMsg?.author_id === msg.author_id &&
+                      new Date(nextMsg.created_at).getTime() - new Date(msg.created_at).getTime() < 5 * 60000;
+
+                    const isFirst = !sameAuthorPrev;
+                    const isLast = !sameAuthorNext;
+
+                    /* iMessage corner radii:
+                       own (right): top-left always full, top-right full only if first,
+                                    bottom-right full only if last, bottom-left always full
+                       other (left): top-left full only if first, top-right always full,
+                                     bottom-right always full, bottom-left full only if last */
+                    const R = 18, S = 4;
+                    const borderRadius = isMe
+                      ? `${R}px ${isFirst ? R : S}px ${isLast ? R : S}px ${R}px`
+                      : `${isFirst ? R : S}px ${R}px ${R}px ${isLast ? R : S}px`;
+
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`flex flex-col ${isMe ? "items-end" : "items-start"} ${isFirst && i > 0 ? "mt-4" : "mt-0.5"}`}
+                      >
+                        {/* Sender name — above first bubble of a group, non-own only */}
+                        {isFirst && !isMe && (
+                          <p className="text-[11px] text-gray-400 ml-10 mb-0.5 font-medium">
+                            {msg.author_name}
+                          </p>
                         )}
-                        <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap break-words">
-                          {renderBody(msg.body, msg.mentionedIds, myId)}
-                        </p>
+
+                        <div className={`flex items-end gap-1.5 max-w-[75%] ${isMe ? "flex-row-reverse" : "flex-row"}`}>
+                          {/* Avatar — left side, others only, shown only on last bubble of group */}
+                          {!isMe && (
+                            <div className="w-7 h-7 flex-shrink-0 self-end">
+                              {isLast ? (
+                                <div
+                                  className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold select-none"
+                                  style={{
+                                    background: `hsl(${(msg.author_name.charCodeAt(0) * 37) % 360}deg 40% 88%)`,
+                                    color: `hsl(${(msg.author_name.charCodeAt(0) * 37) % 360}deg 40% 35%)`,
+                                  }}
+                                >
+                                  {msg.author_name.charAt(0).toUpperCase()}
+                                </div>
+                              ) : (
+                                <div className="w-7 h-7" />
+                              )}
+                            </div>
+                          )}
+
+                          {/* Bubble */}
+                          <div
+                            className={`px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words ${isMe ? "text-white" : "text-ink"}`}
+                            style={{
+                              borderRadius,
+                              background: isMe ? "#1B2E24" : "white",
+                              border: isMe ? "none" : "1px solid #E5E0D8",
+                            }}
+                          >
+                            {renderBody(msg.body, isMe)}
+                          </div>
+                        </div>
+
+                        {/* Timestamp — below last bubble in group */}
+                        {isLast && (
+                          <p className={`text-[10px] text-gray-400 mt-1 ${isMe ? "mr-0.5" : "ml-9"}`}>
+                            {formatTime(msg.created_at)}
+                          </p>
+                        )}
                       </div>
-                      {sameAuthor && (
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none select-none">
-                          {formatTime(msg.created_at)}
-                        </span>
-                      )}
-                    </div>
-                  );
-                })
+                    );
+                  })}
+                  <div ref={bottomRef} />
+                </div>
               )}
-              <div ref={bottomRef} />
             </div>
 
             {/* Input area */}
-            <div className="flex-shrink-0 px-5 py-4 bg-white border-t border-gray-100 relative">
+            <div className="flex-shrink-0 bg-white border-t border-[#E5E0D8] px-4 py-3 relative">
               {/* @mention dropdown */}
               {mentionSuggestions.length > 0 && (
-                <div className="absolute bottom-full left-5 right-5 mb-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-10">
+                <div className="absolute bottom-full left-4 right-4 mb-2 bg-white border border-[#E5E0D8] rounded-2xl shadow-lg overflow-hidden z-10">
                   {mentionSuggestions.map((m, i) => (
                     <button
                       key={m.userId}
                       onMouseDown={(e) => { e.preventDefault(); selectMention(m); }}
-                      className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 transition-colors ${
-                        i === mentionIdx ? "bg-gray-100 text-gray-900" : "text-gray-700 hover:bg-gray-50"
+                      className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-2.5 transition-colors ${
+                        i === mentionIdx ? "bg-gray-50" : "hover:bg-gray-50"
                       }`}
                     >
-                      <span className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500 flex-shrink-0">
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 select-none"
+                        style={{
+                          background: `hsl(${(m.name.charCodeAt(0) * 37) % 360}deg 40% 88%)`,
+                          color: `hsl(${(m.name.charCodeAt(0) * 37) % 360}deg 40% 35%)`,
+                        }}
+                      >
                         {m.name.charAt(0).toUpperCase()}
-                      </span>
-                      {m.name}
+                      </div>
+                      <span className="font-medium text-gray-800">{m.name}</span>
                     </button>
                   ))}
                 </div>
               )}
 
-              <div className="flex items-end gap-2">
-                <div className="flex-1 relative">
-                  <textarea
-                    ref={inputRef}
-                    value={text}
-                    onChange={handleInputChange}
-                    onKeyDown={handleKeyDown}
-                    placeholder={`Message #${activeChannel.name}… (@ to mention)`}
-                    rows={1}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent resize-none leading-relaxed max-h-32 overflow-y-auto"
-                    style={{ minHeight: "42px" }}
-                  />
-                </div>
+              <div className="flex items-end gap-2.5">
+                <textarea
+                  ref={inputRef}
+                  value={text}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder={`Message #${activeChannel.name}...`}
+                  rows={1}
+                  className="flex-1 px-4 py-2.5 rounded-2xl border border-[#E5E0D8] bg-white text-sm text-ink placeholder:text-gray-400 focus:outline-none focus:border-forest/40 focus:ring-2 focus:ring-forest/10 resize-none leading-relaxed overflow-y-auto transition-colors"
+                  style={{ minHeight: "42px", maxHeight: "128px" }}
+                />
                 <button
                   onClick={handleSend}
                   disabled={!text.trim() || sending}
-                  className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-forest text-white hover:bg-forest-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full bg-forest text-white hover:bg-forest-light active:scale-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                   aria-label="Send"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="22" y1="2" x2="11" y2="13"/>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                   </svg>
                 </button>
               </div>
-              <p className="text-[11px] text-gray-300 mt-1.5 ml-1">
+              <p className="text-[10px] text-gray-300 mt-1.5 ml-1 select-none">
                 Enter to send · Shift+Enter for new line · @ to mention
               </p>
             </div>
