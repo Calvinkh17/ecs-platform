@@ -1,25 +1,33 @@
 import Link from "next/link";
+import { getCurrentUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const me = await getCurrentUser();
+
+  if (!me) redirect("/login");
+  if (me.role === "pending") redirect("/pending");
+  if (me.role === "admin" || me.role === "teacher") redirect("/teacher");
+  if (me.role === "parent" || me.role === "student") redirect("/parent");
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center space-y-8">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Gradebook</h1>
-          <p className="mt-2 text-gray-500">School gradebook platform</p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+    <div className="min-h-screen bg-sidebar flex items-center justify-center px-4">
+      <div className="text-center space-y-6">
+        <h1 className="font-heading text-3xl font-bold text-sidebar-text">ECS Platform</h1>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/teacher"
-            className="px-8 py-4 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-700 transition-colors"
+            className="px-6 py-3 bg-forest text-sidebar-text rounded-xl font-medium hover:bg-forest-light transition-colors border border-sidebar-border"
           >
-            Teacher Dashboard
+            Classes
           </Link>
           <Link
             href="/parent"
-            className="px-8 py-4 bg-white text-gray-900 border border-gray-200 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+            className="px-6 py-3 bg-white/10 text-sidebar-text rounded-xl font-medium hover:bg-white/20 transition-colors border border-sidebar-border"
           >
-            Parent View
+            Parent Portal
           </Link>
         </div>
       </div>

@@ -105,7 +105,7 @@ export default function AddStudentDropdown({ classId, rosterStudents }: Props) {
       <button
         onClick={submit}
         disabled={!selected || loading}
-        className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {loading ? "Adding…" : "Add"}
       </button>

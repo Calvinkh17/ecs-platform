@@ -28,8 +28,7 @@ export default async function ChatPage() {
   ]);
 
   return (
-    <div className="h-screen flex flex-col">
-      <AppNav title="Chat" />
+    <AppNav title="Staff Chat" fullHeight>
       <div className="flex-1 overflow-hidden">
         <ChatLayout
           channels={(channels as ChatChannel[]) ?? []}
@@ -43,6 +42,6 @@ export default async function ChatPage() {
           myName={(me.name || me.email) as string}
         />
       </div>
-    </div>
+    </AppNav>
   );
 }

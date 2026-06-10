@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { letterGrade, gradeColor } from "@/lib/grades";
+import { letterGrade, gradeChip } from "@/lib/grades";
 import type { Student, Assignment, Grade, Class } from "@/lib/types";
 
 interface ClassReport {
@@ -91,12 +91,12 @@ export default function ParentSearch() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by student name"
-            className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+            className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
           />
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors"
+            className="px-5 py-2.5 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light disabled:opacity-50 transition-colors"
           >
             {loading ? "Searching…" : "Search"}
           </button>
@@ -125,7 +125,7 @@ export default function ParentSearch() {
                   onClick={() => setActiveClass("all")}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     activeClass === "all"
-                      ? "bg-gray-900 text-white"
+                      ? "bg-forest text-white"
                       : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
                   }`}
                 >
@@ -137,7 +137,7 @@ export default function ParentSearch() {
                     onClick={() => setActiveClass(cls?.id ?? "all")}
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                       activeClass === cls?.id
-                        ? "bg-gray-900 text-white"
+                        ? "bg-forest text-white"
                         : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
                     }`}
                   >
@@ -156,7 +156,7 @@ export default function ParentSearch() {
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-500">Average:</span>
                     <span className="font-semibold text-gray-900">{avg}</span>
-                    <span className={`text-sm font-bold ${gradeColor(letterGrade(avg))}`}>
+                    <span className={`inline-flex items-center justify-center w-8 h-6 rounded text-xs font-bold ${gradeChip(letterGrade(avg))}`}>
                       {letterGrade(avg)}
                     </span>
                   </div>
@@ -200,7 +200,7 @@ export default function ParentSearch() {
                           </td>
                           <td className="px-5 py-3 text-center">
                             {letter ? (
-                              <span className={`font-semibold ${gradeColor(letter)}`}>{letter}</span>
+                              <span className={`inline-flex items-center justify-center w-8 h-6 rounded text-xs font-bold ${gradeChip(letter)}`}>{letter}</span>
                             ) : (
                               <span className="text-gray-300">—</span>
                             )}

@@ -48,8 +48,7 @@ export default async function AdminPage() {
   }));
 
   return (
-    <div className="min-h-screen">
-      <AppNav title="Admin" />
+    <AppNav title="Admin Panel">
       <main className="max-w-4xl mx-auto px-6 py-8">
         <AdminTabs
           meId={me.id}
@@ -64,6 +63,6 @@ export default async function AdminPage() {
           initialClasses={(allClasses as Class[]) ?? []}
         />
       </main>
-    </div>
+    </AppNav>
   );
 }

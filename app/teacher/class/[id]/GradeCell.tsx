@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { upsertGrade } from "@/app/actions";
-import { letterGrade, gradeColor } from "@/lib/grades";
+import { letterGrade, gradeChip } from "@/lib/grades";
 
 interface Props {
   assignmentId: string;
@@ -60,9 +60,9 @@ export default function GradeCell({ assignmentId, studentId, initialScore }: Pro
       onClick={startEdit}
     >
       {displayed !== null ? (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center gap-0.5">
           <span className="text-sm text-gray-700">{displayed}</span>
-          <span className={`text-xs font-semibold ${gradeColor(letter!)}`}>{letter}</span>
+          <span className={`text-[10px] font-bold px-1 rounded ${gradeChip(letter!)}`}>{letter}</span>
         </div>
       ) : (
         <span className="text-gray-300 text-xs">—</span>

@@ -78,7 +78,7 @@ export default function ClassesTab({ initialClasses, users }: Props) {
                       onChange={(e) =>
                         setSelected((s) => ({ ...s, [cls.id]: e.target.value }))
                       }
-                      className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-52"
+                      className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-52"
                     >
                       <option value="">— Unassigned —</option>
                       {teacherUsers.map((u) => (
@@ -99,7 +99,7 @@ export default function ClassesTab({ initialClasses, users }: Props) {
                       <button
                         onClick={() => handleSave(cls.id)}
                         disabled={saving[cls.id] || !isDirty}
-                        className="px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-40"
+                        className="px-3 py-1.5 bg-forest text-white text-xs font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-40"
                       >
                         {saving[cls.id] ? "Saving…" : "Save"}
                       </button>

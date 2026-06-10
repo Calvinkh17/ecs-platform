@@ -135,7 +135,7 @@ export default function ChannelsTab({ meId, users, initialChannels, initialMembe
               onChange={(e) => setNewName(e.target.value)}
               placeholder="e.g. general"
               required
-              className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-48"
+              className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-48"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -145,13 +145,13 @@ export default function ChannelsTab({ meId, users, initialChannels, initialMembe
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
               placeholder="What's this channel for?"
-              className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-64"
+              className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-64"
             />
           </div>
           <button
             type="submit"
             disabled={creating || !newName.trim()}
-            className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-50"
           >
             {creating ? "Creating…" : "Create"}
           </button>
@@ -212,7 +212,7 @@ export default function ChannelsTab({ meId, users, initialChannels, initialMembe
                           <select
                             value={addingMember[ch.id] ?? ""}
                             onChange={(e) => setAddingMember((prev) => ({ ...prev, [ch.id]: e.target.value }))}
-                            className="h-[34px] px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-56"
+                            className="h-[34px] px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-56"
                           >
                             <option value="" disabled>Add member…</option>
                             {eligible.map((u) => (
@@ -222,7 +222,7 @@ export default function ChannelsTab({ meId, users, initialChannels, initialMembe
                           <button
                             onClick={() => handleAddMember(ch.id)}
                             disabled={!addingMember[ch.id] || addingStatus[ch.id]}
-                            className="px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+                            className="px-3 py-1.5 bg-forest text-white text-xs font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-50"
                           >
                             {addingStatus[ch.id] ? "Adding…" : "Add"}
                           </button>

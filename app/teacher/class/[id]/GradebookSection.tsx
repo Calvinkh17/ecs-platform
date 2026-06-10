@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { upsertGrade } from "@/app/actions";
-import { letterGrade, gradeColor } from "@/lib/grades";
+import { letterGrade, gradeChip } from "@/lib/grades";
 import type { Student, Assignment, Grade } from "@/lib/types";
 
 interface Props {
@@ -54,20 +54,24 @@ function GradeRow({
               if (e.key === "Enter") commit();
               if (e.key === "Escape") setEditing(false);
             }}
-            className="w-20 px-2 py-1 text-sm text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
+            className="w-20 px-2 py-1 text-sm text-center border border-rule rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
             autoFocus
           />
         ) : (
           <button
             onClick={() => { setEditing(true); setTimeout(() => inputRef.current?.select(), 0); }}
-            className="w-20 px-2 py-1 text-sm text-center border border-gray-200 rounded-lg hover:border-gray-400 transition-colors text-gray-700"
+            className="w-20 px-2 py-1 text-sm text-center border border-rule rounded-lg hover:border-gray-400 transition-colors text-gray-700"
           >
             {displayed !== null ? displayed : <span className="text-gray-300">—</span>}
           </button>
         )}
-        <span className={`w-6 text-sm font-bold text-right ${letter ? gradeColor(letter) : "text-gray-300"}`}>
-          {letter ?? "—"}
-        </span>
+        {letter ? (
+          <span className={`inline-flex items-center justify-center w-9 h-7 rounded text-xs font-bold ${gradeChip(letter)}`}>
+            {letter}
+          </span>
+        ) : (
+          <span className="w-9 h-7 flex items-center justify-center text-sm text-gray-300">—</span>
+        )}
       </div>
     </div>
   );
@@ -124,7 +128,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
 
   if (!students.length || !assignments.length) {
     return (
-      <div className="text-center py-12 text-gray-400 bg-white rounded-xl border border-gray-100 text-sm">
+      <div className="text-center py-12 text-gray-400 bg-white rounded-xl border border-rule text-sm">
         {!students.length && !assignments.length
           ? "Add students and assignments to start grading."
           : !students.length
@@ -147,8 +151,8 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
   return (
     <div className="flex gap-4 items-start">
       {/* Assignment list */}
-      <div className="w-56 flex-shrink-0 bg-white border border-gray-100 rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+      <div className="w-56 flex-shrink-0 bg-white border border-rule rounded-xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-rule bg-gray-50">
           <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Assignments</span>
         </div>
         <ul>
@@ -159,6 +163,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
             const aAvg = aScores.length
               ? Math.round(aScores.reduce((x, y) => x + y, 0) / aScores.length)
               : null;
+            const aLetter = aAvg !== null ? letterGrade(aAvg) : null;
             const isActive = a.id === assignment.id;
 
             return (
@@ -166,7 +171,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
                 <button
                   onClick={() => selectAssignment(a.id)}
                   className={`w-full text-left px-4 py-3 border-b border-gray-50 last:border-0 transition-colors ${
-                    isActive ? "bg-gray-900 text-white" : "hover:bg-gray-50 text-gray-700"
+                    isActive ? "bg-forest text-white" : "hover:bg-gray-50 text-gray-700"
                   }`}
                 >
                   <div className={`text-sm font-medium truncate ${isActive ? "text-white" : "text-gray-800"}`}>
@@ -174,9 +179,9 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
                   </div>
                   <div className={`text-xs mt-0.5 flex items-center justify-between ${isActive ? "text-gray-300" : "text-gray-400"}`}>
                     <span>{new Date(a.due_date + "T00:00:00").toLocaleDateString()}</span>
-                    {aAvg !== null && (
-                      <span className={isActive ? "text-gray-200" : gradeColor(letterGrade(aAvg))}>
-                        {letterGrade(aAvg)}
+                    {aLetter && (
+                      <span className={isActive ? "text-gray-200" : gradeChip(aLetter).split(" ")[0]}>
+                        {aLetter}
                       </span>
                     )}
                   </div>
@@ -188,9 +193,9 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
       </div>
 
       {/* Assignment detail */}
-      <div className="flex-1 bg-white border border-gray-100 rounded-xl overflow-hidden">
+      <div className="flex-1 bg-white border border-rule rounded-xl overflow-hidden">
         {/* Header with average widget */}
-        <div className="px-5 py-4 border-b border-gray-100 flex items-start justify-between gap-4">
+        <div className="px-5 py-4 border-b border-rule flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <h3 className="text-base font-semibold text-gray-900">{assignment.name}</h3>
             <p className="text-xs text-gray-400 mt-0.5">
@@ -202,12 +207,14 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
           </div>
 
           {/* Average widget */}
-          <div className="flex-shrink-0 w-24 h-24 rounded-xl border-2 border-gray-100 flex flex-col items-center justify-center bg-gray-50">
-            {avg !== null ? (
+          <div className="flex-shrink-0 w-24 h-24 rounded-xl border-2 border-rule flex flex-col items-center justify-center bg-gray-50">
+            {avg !== null && avgLetter ? (
               <>
                 <span className="text-2xl font-bold text-gray-900">{avg}</span>
-                <span className={`text-lg font-bold ${gradeColor(avgLetter!)}`}>{avgLetter}</span>
-                <span className="text-[10px] text-gray-400 mt-0.5">class avg</span>
+                <span className={`inline-flex items-center justify-center w-9 h-7 rounded text-xs font-bold mt-1 ${gradeChip(avgLetter)}`}>
+                  {avgLetter}
+                </span>
+                <span className="text-[10px] text-gray-400 mt-1">class avg</span>
               </>
             ) : (
               <>
@@ -219,9 +226,9 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
         </div>
 
         {/* Student filter combobox */}
-        <div className="px-5 py-3 border-b border-gray-100">
+        <div className="px-5 py-3 border-b border-rule">
           <div className="relative w-64">
-            <div className="flex items-center border border-gray-200 rounded-lg bg-white overflow-hidden focus-within:ring-2 focus-within:ring-gray-900 focus-within:border-transparent">
+            <div className="flex items-center border border-rule rounded-lg bg-white overflow-hidden focus-within:ring-2 focus-within:ring-gold focus-within:border-transparent">
               <input
                 ref={studentInputRef}
                 type="text"
@@ -238,7 +245,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
               )}
             </div>
             {dropdownOpen && filteredStudentOptions.length > 0 && (
-              <div ref={studentDropdownRef} className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+              <div ref={studentDropdownRef} className="absolute z-10 mt-1 w-full bg-white border border-rule rounded-lg shadow-lg overflow-hidden">
                 {filteredStudentOptions.map((s) => (
                   <button
                     key={s.id}
@@ -251,7 +258,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
               </div>
             )}
             {dropdownOpen && filteredStudentOptions.length === 0 && studentQuery && (
-              <div ref={studentDropdownRef} className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg px-3 py-2 text-sm text-gray-400">
+              <div ref={studentDropdownRef} className="absolute z-10 mt-1 w-full bg-white border border-rule rounded-lg shadow-lg px-3 py-2 text-sm text-gray-400">
                 No students match &ldquo;{studentQuery}&rdquo;
               </div>
             )}
@@ -260,7 +267,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
 
         {/* Student list */}
         <div className="divide-y divide-gray-50">
-          <div className="flex items-center justify-between px-5 py-2 bg-gray-50 border-b border-gray-100">
+          <div className="flex items-center justify-between px-5 py-2 bg-gray-50 border-b border-rule">
             <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Student</span>
             <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Score / Grade</span>
           </div>

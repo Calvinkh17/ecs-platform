@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { letterGrade, gradeColor } from "@/lib/grades";
+import { letterGrade, gradeChip } from "@/lib/grades";
 import type { Assignment, Grade, Class, SchoolStudent } from "@/lib/types";
 
 interface ClassReport {
@@ -32,7 +32,7 @@ function GradeTable({ classes }: { classes: ClassReport[] }) {
           <button
             onClick={() => setActiveClass("all")}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              activeClass === "all" ? "bg-gray-900 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+              activeClass === "all" ? "bg-forest text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
             }`}
           >
             All
@@ -42,7 +42,7 @@ function GradeTable({ classes }: { classes: ClassReport[] }) {
               key={cls?.id}
               onClick={() => setActiveClass(cls?.id ?? "all")}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                activeClass === cls?.id ? "bg-gray-900 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                activeClass === cls?.id ? "bg-forest text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
               {cls?.name}
@@ -59,7 +59,7 @@ function GradeTable({ classes }: { classes: ClassReport[] }) {
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-500">Average:</span>
                 <span className="font-semibold text-gray-900">{avg}</span>
-                <span className={`text-sm font-bold ${gradeColor(letterGrade(avg))}`}>{letterGrade(avg)}</span>
+                <span className={`inline-flex items-center justify-center w-8 h-6 rounded text-xs font-bold ${gradeChip(letterGrade(avg))}`}>{letterGrade(avg)}</span>
               </div>
             )}
           </div>
@@ -90,7 +90,7 @@ function GradeTable({ classes }: { classes: ClassReport[] }) {
                       </td>
                       <td className="px-5 py-3 text-center">
                         {letter ? (
-                          <span className={`font-semibold ${gradeColor(letter)}`}>{letter}</span>
+                          <span className={`inline-flex items-center justify-center w-8 h-6 rounded text-xs font-bold ${gradeChip(letter)}`}>{letter}</span>
                         ) : (
                           <span className="text-gray-300">—</span>
                         )}
@@ -195,7 +195,7 @@ export default function ParentView({ childrenData }: Props) {
               key={c.schoolStudent.id}
               onClick={() => setActiveChild(i)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeChild === i ? "bg-gray-900 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                activeChild === i ? "bg-forest text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
             >
               {c.schoolStudent.name}

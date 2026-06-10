@@ -45,8 +45,7 @@ export default async function AnnouncementsPage() {
     (accessRecord?.can_send === true && !accessExpired);
 
   return (
-    <div className="min-h-screen">
-      <AppNav title="Announcements" />
+    <AppNav title="Announcements">
       <main className="max-w-3xl mx-auto px-6 py-8">
         <AnnouncementsFeed
           initialAnnouncements={announcementsWithAuthors}
@@ -55,6 +54,6 @@ export default async function AnnouncementsPage() {
           myId={me.id}
         />
       </main>
-    </div>
+    </AppNav>
   );
 }

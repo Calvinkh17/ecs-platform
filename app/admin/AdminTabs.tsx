@@ -98,7 +98,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
             onClick={() => changeTab(t)}
             className={`px-4 py-2 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
               tab === t
-                ? "border-gray-900 text-gray-900"
+                ? "border-gold text-ink"
                 : "border-transparent text-gray-400 hover:text-gray-700"
             }`}
           >
@@ -128,13 +128,13 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                     </div>
                     <form action={assignRole} className="flex items-center gap-2">
                       <input type="hidden" name="user_id" value={u.id} />
-                      <select name="role" defaultValue="" required className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
+                      <select name="role" defaultValue="" required className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold">
                         <option value="" disabled>Assign role…</option>
                         {ROLES.filter(r => r !== "pending").map(r => (
                           <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
                         ))}
                       </select>
-                      <button type="submit" className="px-3 py-1.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                      <button type="submit" className="px-3 py-1.5 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors">
                         Assign
                       </button>
                     </form>
@@ -174,7 +174,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                       <td className="px-5 py-3">
                         <form action={assignRole} className="flex items-center gap-2">
                           <input type="hidden" name="user_id" value={u.id} />
-                          <select name="role" defaultValue={u.role} className="px-2 py-1 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-gray-900">
+                          <select name="role" defaultValue={u.role} className="px-2 py-1 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-gold">
                             {ROLES.map(r => (
                               <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
                             ))}
@@ -236,11 +236,11 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
             >
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">Name</label>
-                <input type="text" name="name" placeholder="Full name" required className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-48" />
+                <input type="text" name="name" placeholder="Full name" required className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-48" />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">Grade</label>
-                <select name="grade_level" required defaultValue="" className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
+                <select name="grade_level" required defaultValue="" className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold">
                   <option value="" disabled>Grade…</option>
                   {GRADE_LEVELS.map(g => (
                     <option key={g} value={g}>{g === "K" ? "Kindergarten" : g === "Graduated" ? "Graduated" : `Grade ${g}`}</option>
@@ -249,17 +249,17 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">Year Joined</label>
-                <input type="number" name="year_joined" placeholder="2024" min={2000} max={2100} required className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-28" />
+                <input type="number" name="year_joined" placeholder="2024" min={2000} max={2100} required className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-28" />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">Graduating Year</label>
-                <input type="number" name="graduating_year" placeholder="2026" min={2000} max={2100} required className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-36" />
+                <input type="number" name="graduating_year" placeholder="2026" min={2000} max={2100} required className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-36" />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">Email (optional)</label>
-                <input type="email" name="email" placeholder="student@school.edu" className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-48" />
+                <input type="email" name="email" placeholder="student@school.edu" className="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-48" />
               </div>
-              <button type="submit" disabled={addStatus === "pending"} className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50">
+              <button type="submit" disabled={addStatus === "pending"} className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-50">
                 {addStatus === "pending" ? "Adding…" : "Add"}
               </button>
             </form>
@@ -273,11 +273,11 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                 All Students ({filtered.length}{filtered.length !== roster.length ? ` of ${roster.length}` : ""})
               </h2>
               <div className="flex items-center gap-2">
-                <select value={gradeFilter} onChange={e => setGradeFilter(e.target.value)} className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
+                <select value={gradeFilter} onChange={e => setGradeFilter(e.target.value)} className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold">
                   <option value="">All grades</option>
                   {GRADE_LEVELS.map(g => <option key={g} value={g}>{g === "K" ? "Kindergarten" : g === "Graduated" ? "Graduated" : `Grade ${g}`}</option>)}
                 </select>
-                <select value={yearFilter} onChange={e => setYearFilter(e.target.value)} className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
+                <select value={yearFilter} onChange={e => setYearFilter(e.target.value)} className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold">
                   <option value="">All years</option>
                   {uniqueYears.map(y => <option key={y} value={String(y)}>{y}</option>)}
                 </select>
@@ -311,14 +311,14 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                             type="text"
                             value={editValues.name}
                             onChange={e => setEditValues(v => ({ ...v, name: e.target.value }))}
-                            className="w-full px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                            className="w-full px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
                           />
                         </td>
                         <td className="px-3 py-2">
                           <select
                             value={editValues.grade_level}
                             onChange={e => setEditValues(v => ({ ...v, grade_level: e.target.value }))}
-                            className="w-full px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                            className="w-full px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
                           >
                             {GRADE_LEVELS.map(g => (
                               <option key={g} value={g}>{g === "K" ? "Kindergarten" : g === "Graduated" ? "Graduated" : `Grade ${g}`}</option>
@@ -332,7 +332,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                             onChange={e => setEditValues(v => ({ ...v, year_joined: e.target.value }))}
                             min={2000}
                             max={2100}
-                            className="w-24 px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                            className="w-24 px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
                           />
                         </td>
                         <td className="px-3 py-2">
@@ -342,7 +342,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                             onChange={e => setEditValues(v => ({ ...v, graduating_year: e.target.value }))}
                             min={2000}
                             max={2100}
-                            className="w-24 px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                            className="w-24 px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
                             required
                           />
                         </td>
@@ -352,7 +352,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                             value={editValues.email}
                             onChange={e => setEditValues(v => ({ ...v, email: e.target.value }))}
                             placeholder="optional"
-                            className="w-full px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                            className="w-full px-2 py-1.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
                           />
                         </td>
                         <td className="px-3 py-2 text-right">
@@ -524,7 +524,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
               >
                 <div className="flex flex-col gap-1">
                   <label className="text-xs text-gray-400">Parent</label>
-                  <select name="parent_id" required defaultValue="" className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-56">
+                  <select name="parent_id" required defaultValue="" className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-56">
                     <option value="" disabled>Select parent…</option>
                     {parentUsers.map(u => (
                       <option key={u.id} value={u.id}>{u.name || u.email}</option>
@@ -533,14 +533,14 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-xs text-gray-400">Student</label>
-                  <select name="student_id" required defaultValue="" className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-56">
+                  <select name="student_id" required defaultValue="" className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-56">
                     <option value="" disabled>Select student…</option>
                     {roster.map(s => (
                       <option key={s.id} value={s.id}>{s.name}</option>
                     ))}
                   </select>
                 </div>
-                <button type="submit" disabled={linkStatus === "pending"} className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50">
+                <button type="submit" disabled={linkStatus === "pending"} className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-50">
                   {linkStatus === "pending" ? "Linking…" : "Link"}
                 </button>
               </form>

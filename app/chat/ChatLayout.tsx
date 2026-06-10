@@ -342,7 +342,7 @@ export default function ChatLayout({ channels, staffUsers, myId, myName }: Props
                 onClick={() => selectChannel(ch.id)}
                 className={`w-full text-left px-4 py-2.5 flex items-center gap-2 text-sm transition-colors ${
                   activeId === ch.id
-                    ? "bg-gray-900 text-white"
+                    ? "bg-forest text-white"
                     : "text-gray-700 hover:bg-gray-50"
                 }`}
               >
@@ -477,14 +477,14 @@ export default function ChatLayout({ channels, staffUsers, myId, myName }: Props
                     onKeyDown={handleKeyDown}
                     placeholder={`Message #${activeChannel.name}… (@ to mention)`}
                     rows={1}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none leading-relaxed max-h-32 overflow-y-auto"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent resize-none leading-relaxed max-h-32 overflow-y-auto"
                     style={{ minHeight: "42px" }}
                   />
                 </div>
                 <button
                   onClick={handleSend}
                   disabled={!text.trim() || sending}
-                  className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-gray-900 text-white hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-forest text-white hover:bg-forest-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   aria-label="Send"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

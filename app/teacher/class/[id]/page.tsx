@@ -46,9 +46,7 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
   ) ?? [];
 
   return (
-    <div className="min-h-screen">
-      <AppNav title={(cls as Class).name} />
-
+    <AppNav title={(cls as Class).name}>
       <main className="max-w-6xl mx-auto px-6 py-8 space-y-10">
         {/* Add Student + Add Assignment */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -85,18 +83,18 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
                 name="name"
                 placeholder="Assignment name"
                 required
-                className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
               />
               <div className="flex gap-2">
                 <input
                   type="date"
                   name="due_date"
                   required
-                  className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
+                  className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors"
                 >
                   Add
                 </button>
@@ -137,6 +135,6 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
           />
         </section>
       </main>
-    </div>
+    </AppNav>
   );
 }

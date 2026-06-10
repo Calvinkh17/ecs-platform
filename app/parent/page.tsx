@@ -73,11 +73,10 @@ export default async function ParentPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <AppNav title="Parent View" />
+    <AppNav title="Parent Portal">
       <main className="max-w-3xl mx-auto px-6 py-8">
         <ParentView childrenData={childrenData} />
       </main>
-    </div>
+    </AppNav>
   );
 }

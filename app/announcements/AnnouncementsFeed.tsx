@@ -142,7 +142,7 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
               onChange={e => setTitle(e.target.value)}
               placeholder="Title"
               required
-              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
             />
             <textarea
               value={body}
@@ -150,13 +150,13 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
               placeholder="Write your announcement…"
               required
               rows={4}
-              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent resize-none"
             />
             <div className="flex items-center gap-3">
               <button
                 type="submit"
                 disabled={posting || !title.trim() || !body.trim()}
-                className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-50"
               >
                 {posting ? "Posting…" : "Post"}
               </button>

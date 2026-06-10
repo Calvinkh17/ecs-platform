@@ -87,7 +87,7 @@ export default function AnnouncementAccessTab({ users, initialAccess }: Props) {
                 value={userId}
                 onChange={e => setUserId(e.target.value)}
                 required
-                className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-60"
+                className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-60"
               >
                 <option value="" disabled>Select user…</option>
                 {eligible.map(u => (
@@ -103,13 +103,13 @@ export default function AnnouncementAccessTab({ users, initialAccess }: Props) {
                 type="datetime-local"
                 value={expiresAt}
                 onChange={e => setExpiresAt(e.target.value)}
-                className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
               />
             </div>
             <button
               type="submit"
               disabled={saving || !userId}
-              className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+              className="px-4 py-2 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-50"
             >
               {saving ? "Saving…" : "Grant"}
             </button>

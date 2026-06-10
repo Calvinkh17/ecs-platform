@@ -325,7 +325,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
             onChange={e => setNotes(e.target.value)}
             placeholder="Add any notes about this observation…"
             rows={4}
-            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 resize-none"
+            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold resize-none"
           />
         </div>
 
@@ -334,7 +334,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full py-4 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-700 transition-colors disabled:opacity-50 text-base mb-8"
+          className="w-full py-4 bg-forest text-white font-bold rounded-xl hover:bg-forest-light transition-colors disabled:opacity-50 text-base mb-8"
         >
           {saving ? "Saving…" : "Save Observation"}
         </button>
@@ -363,7 +363,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
                 <select
                   value={teacherSelect}
                   onChange={e => setTeacherSelect(e.target.value)}
-                  className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 w-56"
+                  className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold w-56"
                 >
                   <option value="">Select teacher…</option>
                   {teachers.map(t => <option key={t.id} value={t.id}>{t.name || t.email}</option>)}
@@ -374,7 +374,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
                 <select
                   value={obsNumSelect}
                   onChange={e => setObsNumSelect(e.target.value)}
-                  className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
                 >
                   <option value="">Number…</option>
                   {([1, 2, 3, 4] as const).map(n => <option key={n} value={n}>{ORDINALS[n]}</option>)}
@@ -386,13 +386,13 @@ export default function ObservationTab({ teachers, initialObservations, initialR
                   type="date"
                   value={dateSelect}
                   onChange={e => setDateSelect(e.target.value)}
-                  className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  className="h-[38px] px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-gold"
                 />
               </div>
               <button
                 onClick={startObservation}
                 disabled={starting}
-                className="h-[38px] px-5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+                className="h-[38px] px-5 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors disabled:opacity-50"
               >
                 {starting ? "Starting…" : "Start"}
               </button>
@@ -409,7 +409,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
           <select
             value={historyTeacherId}
             onChange={e => changeHistoryTeacher(e.target.value)}
-            className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+            className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold"
           >
             <option value="">All teachers</option>
             {teachers.map(t => (

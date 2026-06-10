@@ -33,9 +33,7 @@ export default async function TeacherDashboard() {
   }
 
   return (
-    <div className="min-h-screen">
-      <AppNav title="Teacher Dashboard" />
-
+    <AppNav title="Classes">
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-8">
         <section>
           <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
@@ -47,11 +45,11 @@ export default async function TeacherDashboard() {
               name="name"
               placeholder="Class name (e.g. Algebra I – Period 3)"
               required
-              className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+              className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
             />
             <button
               type="submit"
-              className="px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
+              className="px-5 py-2.5 bg-forest text-white text-sm font-medium rounded-lg hover:bg-forest-light transition-colors"
             >
               Create
             </button>
@@ -108,6 +106,6 @@ export default async function TeacherDashboard() {
           )}
         </section>
       </main>
-    </div>
+    </AppNav>
   );
 }
