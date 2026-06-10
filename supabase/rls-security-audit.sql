@@ -132,18 +132,43 @@ create policy "users: teacher read staff" on public.users
 -- Admins and teachers are unaffected — their policies are separate.
 -- ────────────────────────────────────────────────────────────────
 
+-- SECURITY DEFINER helpers to avoid circular RLS between classes ↔ students.
+-- classes: parent student read → queries students
+-- students: teacher select    → queries classes  → infinite recursion
+-- Fix: query students/parent_students from SECURITY DEFINER functions
+-- that bypass RLS, breaking the cycle.
+
+create or replace function public.get_child_class_ids(p_user_id uuid)
+returns setof uuid
+language sql stable security definer set search_path = public
+as $$
+  select s.class_id
+  from public.students s
+  join public.parent_students ps on ps.student_id = s.school_student_id
+  where ps.parent_id = p_user_id
+    and s.class_id is not null;
+$$;
+
+create or replace function public.get_child_student_ids(p_user_id uuid)
+returns setof uuid
+language sql stable security definer set search_path = public
+as $$
+  select s.id
+  from public.students s
+  join public.parent_students ps on ps.student_id = s.school_student_id
+  where ps.parent_id = p_user_id;
+$$;
+
+grant execute on function public.get_child_class_ids(uuid)   to authenticated;
+grant execute on function public.get_child_student_ids(uuid) to authenticated;
+
 -- CLASSES --------------------------------------------------------
 drop policy if exists "classes: parent student read" on public.classes;
 create policy "classes: parent student read" on public.classes
   for select
   using (
     get_my_role() in ('parent', 'student')
-    and id in (
-      select s.class_id
-      from   public.students s
-      join   public.parent_students ps on ps.student_id = s.school_student_id
-      where  ps.parent_id = auth.uid()
-    )
+    and id in (select get_child_class_ids(auth.uid()))
   );
 
 -- STUDENTS -------------------------------------------------------
@@ -153,9 +178,7 @@ create policy "students: parent student read" on public.students
   using (
     get_my_role() in ('parent', 'student')
     and school_student_id in (
-      select student_id
-      from   public.parent_students
-      where  parent_id = auth.uid()
+      select student_id from public.parent_students where parent_id = auth.uid()
     )
   );
 
@@ -165,28 +188,15 @@ create policy "assignments: parent student read" on public.assignments
   for select
   using (
     get_my_role() in ('parent', 'student')
-    and class_id in (
-      select s.class_id
-      from   public.students s
-      join   public.parent_students ps on ps.student_id = s.school_student_id
-      where  ps.parent_id = auth.uid()
-    )
+    and class_id in (select get_child_class_ids(auth.uid()))
   );
 
 -- GRADES ---------------------------------------------------------
--- Drop both the overly-broad policy from auth-schema.sql and the
--- parent-only policy from parent-students-schema.sql, then replace
--- with a single correctly-scoped policy covering both roles.
 drop policy if exists "grades: parent student read" on public.grades;
 drop policy if exists "grades_select_parent"        on public.grades;
 create policy "grades: parent student read" on public.grades
   for select to authenticated
   using (
     get_my_role() in ('parent', 'student')
-    and student_id in (
-      select s.id
-      from   public.students s
-      join   public.parent_students ps on ps.student_id = s.school_student_id
-      where  ps.parent_id = auth.uid()
-    )
+    and student_id in (select get_child_student_ids(auth.uid()))
   );
