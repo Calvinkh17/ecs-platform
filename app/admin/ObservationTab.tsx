@@ -79,7 +79,7 @@ function LawCard({ law, responses, onChange }: {
   const allDone = observed === law.points.length;
   const none = observed === 0 && law.points.every(p => responses[p.key] === "na");
   return (
-    <div className="bg-white border border-gray-100 rounded-xl overflow-hidden mb-4">
+    <div className="card rounded-xl overflow-hidden mb-4">
       <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
         <div>
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Law {law.number}</p>
@@ -316,7 +316,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
           <LawCard key={law.number} law={law} responses={responses} onChange={setResponse} />
         ))}
 
-        <div className="bg-white border border-gray-100 rounded-xl p-4 mb-4">
+        <div className="card rounded-xl p-4 mb-4">
           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
             Observer Notes
           </label>
@@ -351,7 +351,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
   return (
     <div className="space-y-6">
       {/* Start new */}
-      <section className="bg-white border border-gray-100 rounded-xl p-5">
+      <section className="card rounded-xl p-5">
         <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Start New Observation</h2>
         {teachers.length === 0 ? (
           <p className="text-sm text-gray-400">No teacher accounts yet. Assign the "teacher" role to a user first.</p>
@@ -430,7 +430,7 @@ export default function ObservationTab({ teachers, initialObservations, initialR
           </div>
         ) : (
           <>
-            <div className="bg-white border border-gray-100 rounded-xl overflow-hidden mb-4">
+            <div className="card rounded-xl overflow-hidden mb-4">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">

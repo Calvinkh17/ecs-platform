@@ -130,7 +130,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
 
   if (!students.length || !assignments.length) {
     return (
-      <div className="text-center py-14 text-gray-400 bg-white rounded-xl border border-rule shadow-sm text-sm">
+      <div className="card text-center py-14 text-gray-400 rounded-xl text-sm">
         <svg className="mx-auto mb-3 text-gray-200" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/><line x1="15" y1="9" x2="15" y2="21"/>
         </svg>
@@ -157,7 +157,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
   return (
     <div className="flex gap-4 items-start">
       {/* Assignment list */}
-      <div className="w-56 flex-shrink-0 bg-white border border-rule rounded-xl overflow-hidden shadow-sm">
+      <div className="card w-56 flex-shrink-0 rounded-xl overflow-hidden">
         <div className="px-4 py-3 border-b border-rule bg-gray-50">
           <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Assignments</span>
         </div>
@@ -199,7 +199,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
       </div>
 
       {/* Assignment detail */}
-      <div className="flex-1 bg-white border border-rule rounded-xl overflow-hidden shadow-sm">
+      <div className="card flex-1 rounded-xl overflow-hidden">
         {/* Header with average widget */}
         <div className="px-5 py-4 border-b border-rule flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
@@ -213,7 +213,7 @@ export default function GradebookSection({ students, assignments, gradeMap }: Pr
           </div>
 
           {/* Average widget */}
-          <div className="flex-shrink-0 w-24 h-24 rounded-xl border-2 border-rule flex flex-col items-center justify-center bg-gray-50">
+          <div className="flex-shrink-0 w-24 h-24 rounded-xl flex flex-col items-center justify-center bg-gray-50" style={{ border: "1px solid #E5E0D8" }}>
             {avg !== null && avgLetter ? (
               <>
                 <span className="text-2xl font-bold text-gray-900">{avg}</span>

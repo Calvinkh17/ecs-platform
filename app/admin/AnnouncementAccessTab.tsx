@@ -68,7 +68,7 @@ export default function AnnouncementAccessTab({ users, initialAccess }: Props) {
 
   return (
     <div className="space-y-6">
-      <section className="bg-white border border-gray-100 rounded-xl p-5">
+      <section className="card rounded-xl p-5">
         <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">
           Grant Send Access
         </h2>
@@ -127,7 +127,7 @@ export default function AnnouncementAccessTab({ users, initialAccess }: Props) {
             No custom access grants yet.
           </div>
         ) : (
-          <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+          <div className="card rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100">

@@ -124,7 +124,7 @@ export default function ChannelsTab({ meId, users, initialChannels, initialMembe
   return (
     <div className="space-y-6">
       {/* Create channel */}
-      <section className="bg-white border border-gray-100 rounded-xl p-5">
+      <section className="card rounded-xl p-5">
         <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Create Channel</h2>
         <form onSubmit={handleCreate} className="flex flex-wrap gap-2 items-end">
           <div className="flex flex-col gap-1">
@@ -175,7 +175,7 @@ export default function ChannelsTab({ meId, users, initialChannels, initialMembe
               const expanded = expandedId === ch.id;
               const eligible = eligibleToAdd(ch.id);
               return (
-                <div key={ch.id} className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+                <div key={ch.id} className="card rounded-xl overflow-hidden">
                   {/* Channel row */}
                   <div className="flex items-center gap-3 px-5 py-4">
                     <button

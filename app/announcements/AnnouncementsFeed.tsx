@@ -131,7 +131,7 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
   return (
     <div className="space-y-6">
       {canSend && (
-        <section className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
+        <section className="card rounded-xl p-5">
           <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
             New Announcement
           </h2>
@@ -171,7 +171,7 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
           Announcements ({announcements.length}{hasMore ? "+" : ""})
         </h2>
         {announcements.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-xl border border-gray-100 shadow-sm">
+          <div className="card text-center py-16 rounded-xl">
             <svg className="mx-auto mb-3 text-gray-300" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
@@ -182,7 +182,7 @@ export default function AnnouncementsFeed({ initialAnnouncements, userNames, can
           <>
             <div className="space-y-3">
               {announcements.map(a => (
-                <div key={a.id} className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-150">
+                <div key={a.id} className="card rounded-xl p-5 hover:shadow-md transition-shadow duration-150">
                   <div className="flex items-start justify-between gap-4 mb-3">
                     <h3 className="font-semibold text-gray-900 text-base leading-snug">{a.title}</h3>
                     <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5">

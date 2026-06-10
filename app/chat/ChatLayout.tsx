@@ -38,7 +38,7 @@ function renderBody(body: string, mentionedIds: string[], myId: string): React.R
   const segments = body.split(/(@\S+)/g);
   return segments.map((seg, i) =>
     seg.startsWith("@") ? (
-      <span key={i} className={`font-semibold ${isMentioned ? "text-yellow-700" : "text-blue-600"}`}>
+      <span key={i} className={`font-semibold ${isMentioned ? "text-gold-deep" : "text-forest"}`}>
         {seg}
       </span>
     ) : seg
@@ -436,7 +436,7 @@ export default function ChatLayout({ channels, staffUsers, myId, myName }: Props
                     <div
                       key={msg.id}
                       className={`group relative flex gap-2.5 px-2 py-0.5 rounded-lg transition-colors ${
-                        isMentioned ? "bg-yellow-50 border border-yellow-100" : "hover:bg-white"
+                        isMentioned ? "bg-gold/10 border border-gold/20" : "hover:bg-white/70"
                       } ${sameAuthor ? "" : "mt-3"}`}
                     >
                       {/* Avatar */}
@@ -457,7 +457,7 @@ export default function ChatLayout({ channels, staffUsers, myId, myName }: Props
                       <div className="flex-1 min-w-0">
                         {!sameAuthor && (
                           <div className="flex items-baseline gap-2 mb-0.5">
-                            <span className={`text-sm font-semibold ${isMe ? "text-blue-700" : "text-gray-900"}`}>
+                            <span className={`text-sm font-semibold ${isMe ? "text-forest" : "text-gray-900"}`}>
                               {isMe ? "You" : msg.author_name}
                             </span>
                             <span className="text-[11px] text-gray-400">{formatTime(msg.created_at)}</span>

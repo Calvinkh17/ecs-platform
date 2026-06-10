@@ -45,7 +45,7 @@ export default function ClassesTab({ initialClasses, users }: Props) {
   }
 
   return (
-    <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+    <div className="card rounded-xl overflow-hidden">
       {classes.length === 0 ? (
         <div className="text-center py-10 text-gray-400 text-sm">
           No classes yet. Create one from the Teacher Dashboard.

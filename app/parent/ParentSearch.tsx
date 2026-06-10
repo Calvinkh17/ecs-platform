@@ -149,7 +149,7 @@ export default function ParentSearch() {
           </div>
 
           {report.filter(({ cls }) => activeClass === "all" || cls?.id === activeClass).map(({ cls, assignments, avg }) => (
-            <div key={cls?.id ?? "unknown"} className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+            <div key={cls?.id ?? "unknown"} className="card rounded-xl overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                 <h3 className="font-medium text-gray-900">{cls?.name ?? "Unknown Class"}</h3>
                 {avg !== null && (

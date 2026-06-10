@@ -50,7 +50,7 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
       <main className="max-w-6xl mx-auto px-6 py-8 space-y-10">
         {/* Add Student + Add Assignment */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <section className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
+          <section className="card rounded-xl p-5">
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
               Add Student
             </h2>
@@ -74,7 +74,7 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
             )}
           </section>
 
-          <section className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
+          <section className="card rounded-xl p-5">
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
               Add Assignment
             </h2>

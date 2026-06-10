@@ -35,7 +35,7 @@ export default async function TeacherDashboard() {
   return (
     <AppNav title="Classes">
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-8">
-        <section className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
+        <section className="card rounded-xl p-5">
           <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
             New Class
           </h2>
@@ -63,7 +63,7 @@ export default async function TeacherDashboard() {
               : `Your Classes (${classes?.length ?? 0})`}
           </h2>
           {!classes?.length ? (
-            <div className="text-center py-16 bg-white rounded-xl border border-gray-100 shadow-sm">
+            <div className="text-center py-16 card rounded-xl">
               <svg className="mx-auto mb-3 text-gray-300" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
                 <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
@@ -76,7 +76,7 @@ export default async function TeacherDashboard() {
               {(classes as Class[]).map((cls) => (
                 <li
                   key={cls.id}
-                  className="flex items-center justify-between bg-white border border-gray-100 rounded-xl px-5 py-4 shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-150"
+                  className="card rounded-xl flex items-center justify-between px-5 py-4 hover:shadow-md transition-all duration-150"
                 >
                   <div className="flex-1 min-w-0 mr-4">
                     <Link

@@ -52,7 +52,7 @@ function GradeTable({ classes }: { classes: ClassReport[] }) {
       )}
 
       {visible.map(({ cls, assignments, avg }) => (
-        <div key={cls?.id ?? "unknown"} className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
+        <div key={cls?.id ?? "unknown"} className="card rounded-xl overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
             <h3 className="font-semibold text-gray-900">{cls?.name ?? "Unknown Class"}</h3>
             {avg !== null && (
@@ -178,7 +178,7 @@ export default function ParentView({ childrenData }: Props) {
 
   if (childrenData.length === 0) {
     return (
-      <div className="text-center py-20 bg-white rounded-xl border border-gray-100 shadow-sm">
+      <div className="card text-center py-20 rounded-xl">
         <svg className="mx-auto mb-3 text-gray-300" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
         </svg>
@@ -235,7 +235,7 @@ export default function ParentView({ childrenData }: Props) {
       </div>
 
       {child.classes.length === 0 ? (
-        <div className="text-center py-14 bg-white rounded-xl border border-gray-100 shadow-sm">
+        <div className="card text-center py-14 rounded-xl">
           <svg className="mx-auto mb-3 text-gray-300" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
           </svg>
