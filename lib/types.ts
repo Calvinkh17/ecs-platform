@@ -1,6 +1,7 @@
 export interface Class {
   id: string;
   name: string;
+  teacher_id: string | null;
   created_at: string;
 }
 

@@ -277,6 +277,19 @@ export async function upsertGrade(formData: FormData) {
   refresh();
 }
 
+export async function reassignClass(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const id = formData.get("id") as string;
+  const teacher_id = formData.get("teacher_id") as string;
+  if (!id) return { error: "Missing class ID." };
+  const { error } = await supabase
+    .from("classes")
+    .update({ teacher_id: teacher_id || null })
+    .eq("id", id);
+  if (error) return { error: error.message };
+  return {};
+}
+
 export async function deleteClass(formData: FormData) {
   const supabase = await createClient();
   const id = formData.get("id") as string;

@@ -5,16 +5,28 @@ import { getCurrentUser } from "@/lib/auth";
 import { createClass } from "@/app/actions";
 import DeleteClassButton from "./DeleteClassButton";
 import AppNav from "@/components/AppNav";
-import type { Class } from "@/lib/types";
+
+interface ClassRow {
+  id: string;
+  name: string;
+  teacher_id: string | null;
+  created_at: string;
+  teacher: { name: string | null; email: string } | null;
+}
 
 export default async function TeacherDashboard() {
   const me = await getCurrentUser();
   if (!me || (me.role !== "teacher" && me.role !== "admin")) redirect("/");
 
   const supabase = await createClient();
-  const query = supabase.from("classes").select("*").order("created_at", { ascending: false });
-  if (me.role === "teacher") query.eq("teacher_id", me.id);
+  let query = supabase
+    .from("classes")
+    .select("*, teacher:users!teacher_id(name, email)")
+    .order("name");
+  if (me.role === "teacher") query = query.eq("teacher_id", me.id);
   const { data: classes } = await query;
+
+  const isAdmin = me.role === "admin";
 
   return (
     <div className="min-h-screen">
@@ -44,7 +56,9 @@ export default async function TeacherDashboard() {
 
         <section>
           <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-            Your Classes ({classes?.length ?? 0})
+            {isAdmin
+              ? `All Classes (${classes?.length ?? 0})`
+              : `Your Classes (${classes?.length ?? 0})`}
           </h2>
           {!classes?.length ? (
             <div className="text-center py-16 text-gray-400 bg-white rounded-xl border border-gray-100">
@@ -52,18 +66,27 @@ export default async function TeacherDashboard() {
             </div>
           ) : (
             <ul className="space-y-2">
-              {(classes as Class[]).map((cls) => (
+              {(classes as ClassRow[]).map((cls) => (
                 <li
                   key={cls.id}
                   className="flex items-center justify-between bg-white border border-gray-100 rounded-xl px-5 py-4 hover:border-gray-200 transition-colors"
                 >
-                  <Link
-                    href={`/teacher/class/${cls.id}`}
-                    className="font-medium text-gray-900 hover:text-gray-600 transition-colors flex-1"
-                  >
-                    {cls.name}
-                  </Link>
-                  <div className="flex items-center gap-4">
+                  <div className="flex-1 min-w-0 mr-4">
+                    <Link
+                      href={`/teacher/class/${cls.id}`}
+                      className="font-medium text-gray-900 hover:text-gray-600 transition-colors"
+                    >
+                      {cls.name}
+                    </Link>
+                    {isAdmin && (
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {cls.teacher
+                          ? (cls.teacher.name || cls.teacher.email)
+                          : <span className="text-amber-500">Unassigned</span>}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-4 flex-shrink-0">
                     <span className="text-xs text-gray-400">
                       {new Date(cls.created_at).toLocaleDateString()}
                     </span>

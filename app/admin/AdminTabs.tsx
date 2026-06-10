@@ -3,10 +3,11 @@
 import { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { assignRole, addSchoolStudent, deleteSchoolStudent, updateSchoolStudent, linkParentStudent, unlinkParentStudent } from "@/app/actions";
-import type { SchoolStudent, ParentLink, Observation, ObservationResponse, AnnouncementAccess, ChatChannel, ChannelMember } from "@/lib/types";
+import type { SchoolStudent, ParentLink, Observation, ObservationResponse, AnnouncementAccess, ChatChannel, ChannelMember, Class } from "@/lib/types";
 import ObservationTab from "./ObservationTab";
 import AnnouncementAccessTab from "./AnnouncementAccessTab";
 import ChannelsTab from "./ChannelsTab";
+import ClassesTab from "./ClassesTab";
 
 const GRADE_LEVELS = ["K","1","2","3","4","5","6","7","8","9","10","11","12","Graduated"];
 const ROLES = ["admin","teacher","parent","student","pending"] as const;
@@ -36,12 +37,13 @@ interface Props {
   initialAnnouncementAccess: AnnouncementAccess[];
   initialChannels: ChatChannel[];
   initialChannelMembers: (ChannelMember & { user_name: string; user_email: string })[];
+  initialClasses: Class[];
 }
 
-export default function AdminTabs({ meId, users, schoolStudents: initialStudents, initialParentLinks, initialObservations, initialResponses, initialAnnouncementAccess, initialChannels, initialChannelMembers }: Props) {
+export default function AdminTabs({ meId, users, schoolStudents: initialStudents, initialParentLinks, initialObservations, initialResponses, initialAnnouncementAccess, initialChannels, initialChannelMembers, initialClasses }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const validTabs = ["users", "students", "parents", "observations", "announcements", "channels"] as const;
+  const validTabs = ["users", "students", "parents", "observations", "announcements", "channels", "classes"] as const;
   type Tab = typeof validTabs[number];
   const [tab, setTab] = useState<Tab>(() => {
     const t = searchParams.get("tab") as Tab;
@@ -90,7 +92,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
     <div className="space-y-8">
       {/* Tabs */}
       <div className="flex gap-1 border-b border-gray-100 flex-wrap">
-        {(["users", "students", "parents", "observations", "announcements", "channels"] as const).map(t => (
+        {(["users", "students", "parents", "observations", "announcements", "channels", "classes"] as const).map(t => (
           <button
             key={t}
             onClick={() => changeTab(t)}
@@ -100,7 +102,7 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
                 : "border-transparent text-gray-400 hover:text-gray-700"
             }`}
           >
-            {t === "users" ? `Users (${users.length})` : t === "students" ? `Students (${roster.length})` : t === "parents" ? `Parents (${links.length})` : t === "observations" ? "Observations" : t === "announcements" ? "Announcements" : "Channels"}
+            {t === "users" ? `Users (${users.length})` : t === "students" ? `Students (${roster.length})` : t === "parents" ? `Parents (${links.length})` : t === "observations" ? "Observations" : t === "announcements" ? "Announcements" : t === "channels" ? "Channels" : `Classes (${initialClasses.length})`}
           </button>
         ))}
       </div>
@@ -470,6 +472,11 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
           initialChannels={initialChannels}
           initialMembers={initialChannelMembers}
         />
+      )}
+
+      {/* ── Classes tab ── */}
+      {tab === "classes" && (
+        <ClassesTab initialClasses={initialClasses} users={users} />
       )}
 
       {/* ── Parents tab ── */}

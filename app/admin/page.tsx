@@ -3,7 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AppNav from "@/components/AppNav";
 import AdminTabs from "./AdminTabs";
-import type { SchoolStudent, ParentLink, Observation, ObservationResponse, AnnouncementAccess, ChatChannel, ChannelMember } from "@/lib/types";
+import type { SchoolStudent, ParentLink, Observation, ObservationResponse, AnnouncementAccess, ChatChannel, ChannelMember, Class } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +21,7 @@ export default async function AdminPage() {
     { data: announcementAccess },
     { data: chatChannels },
     { data: rawChannelMembers },
+    { data: allClasses },
   ] = await Promise.all([
     supabase.from("users").select("*").order("created_at", { ascending: false }),
     supabase.from("school_students").select("*").order("name"),
@@ -30,6 +31,7 @@ export default async function AdminPage() {
     supabase.from("announcement_access").select("*").order("created_at", { ascending: false }),
     supabase.from("chat_channels").select("*").order("name"),
     supabase.from("channel_members").select("*").order("joined_at"),
+    supabase.from("classes").select("*").order("name"),
   ]);
 
   const parentLinks: ParentLink[] = (rawLinks ?? []).map((link) => ({
@@ -59,6 +61,7 @@ export default async function AdminPage() {
           initialAnnouncementAccess={(announcementAccess as AnnouncementAccess[]) ?? []}
           initialChannels={(chatChannels as ChatChannel[]) ?? []}
           initialChannelMembers={channelMembersWithNames}
+          initialClasses={(allClasses as Class[]) ?? []}
         />
       </main>
     </div>
