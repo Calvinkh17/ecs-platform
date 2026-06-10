@@ -18,7 +18,7 @@ export default async function TeacherDashboard() {
 
   let query = supabase.from("classes").select("*").order("name");
   if (!isAdmin) query = query.eq("teacher_id", me.id);
-  const { data: classes, error: classesError } = await query;
+  const { data: classes } = await query;
 
   // For admin: fetch all staff so we can show the assigned teacher name
   let teacherMap: Record<string, string> = {};
@@ -64,11 +64,6 @@ export default async function TeacherDashboard() {
               ? `All Classes (${classes?.length ?? 0})`
               : `Your Classes (${classes?.length ?? 0})`}
           </h2>
-          {/* DEBUG — remove once classes appear */}
-          <pre className="text-xs bg-gray-100 rounded p-3 mb-3 text-gray-600">
-            {JSON.stringify({ role: me.role, isAdmin, count: classes?.length ?? null, error: classesError?.message ?? null }, null, 2)}
-          </pre>
-
           {!classes?.length ? (
             <div className="text-center py-16 text-gray-400 bg-white rounded-xl border border-gray-100">
               No classes yet. Create one above.
