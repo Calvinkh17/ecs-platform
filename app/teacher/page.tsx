@@ -7,6 +7,8 @@ import DeleteClassButton from "./DeleteClassButton";
 import AppNav from "@/components/AppNav";
 import type { Class } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export default async function TeacherDashboard() {
   const me = await getCurrentUser();
   if (!me || (me.role !== "teacher" && me.role !== "admin")) redirect("/");

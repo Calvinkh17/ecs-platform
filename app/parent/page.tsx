@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
 import AppNav from "@/components/AppNav";
 import ParentView, { type ChildData } from "./ParentView";
+
+export const dynamic = "force-dynamic";
 import type { Assignment, Grade, Class, SchoolStudent } from "@/lib/types";
 
 export default async function ParentPage() {

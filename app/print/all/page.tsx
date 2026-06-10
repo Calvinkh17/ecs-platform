@@ -4,6 +4,8 @@ import { getCurrentUser } from "@/lib/auth";
 import PrintButton from "../[student_id]/PrintButton";
 import type { Assignment, Class, SchoolStudent } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 function getWeekRange() {
   const now = new Date();
   const day = now.getDay();
