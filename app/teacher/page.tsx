@@ -5,28 +5,30 @@ import { getCurrentUser } from "@/lib/auth";
 import { createClass } from "@/app/actions";
 import DeleteClassButton from "./DeleteClassButton";
 import AppNav from "@/components/AppNav";
-
-interface ClassRow {
-  id: string;
-  name: string;
-  teacher_id: string | null;
-  created_at: string;
-  teacher: { name: string | null; email: string } | null;
-}
+import type { Class } from "@/lib/types";
 
 export default async function TeacherDashboard() {
   const me = await getCurrentUser();
   if (!me || (me.role !== "teacher" && me.role !== "admin")) redirect("/");
 
+  const isAdmin = me.role === "admin";
   const supabase = await createClient();
-  let query = supabase
-    .from("classes")
-    .select("*, teacher:users!teacher_id(name, email)")
-    .order("name");
-  if (me.role === "teacher") query = query.eq("teacher_id", me.id);
+
+  let query = supabase.from("classes").select("*").order("name");
+  if (!isAdmin) query = query.eq("teacher_id", me.id);
   const { data: classes } = await query;
 
-  const isAdmin = me.role === "admin";
+  // For admin: fetch all staff so we can show the assigned teacher name
+  let teacherMap: Record<string, string> = {};
+  if (isAdmin) {
+    const { data: staff } = await supabase
+      .from("users")
+      .select("id, name, email")
+      .in("role", ["admin", "teacher"]);
+    teacherMap = Object.fromEntries(
+      (staff ?? []).map((u) => [u.id, u.name || u.email])
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -66,7 +68,7 @@ export default async function TeacherDashboard() {
             </div>
           ) : (
             <ul className="space-y-2">
-              {(classes as ClassRow[]).map((cls) => (
+              {(classes as Class[]).map((cls) => (
                 <li
                   key={cls.id}
                   className="flex items-center justify-between bg-white border border-gray-100 rounded-xl px-5 py-4 hover:border-gray-200 transition-colors"
@@ -80,8 +82,8 @@ export default async function TeacherDashboard() {
                     </Link>
                     {isAdmin && (
                       <p className="text-xs text-gray-400 mt-0.5">
-                        {cls.teacher
-                          ? (cls.teacher.name || cls.teacher.email)
+                        {cls.teacher_id
+                          ? (teacherMap[cls.teacher_id] ?? "Unknown")
                           : <span className="text-amber-500">Unassigned</span>}
                       </p>
                     )}
