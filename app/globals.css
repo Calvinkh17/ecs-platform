@@ -8,7 +8,7 @@
   --theme-bg: #FFFFFF;
   --theme-surface: #F5F5F5;
   --theme-surface-raised: #FFFFFF;
-  --theme-border: #E5E5E5;
+  --theme-border: #E0E0E0;
   --theme-border-strong: #CCCCCC;
   --theme-primary: #111111;
   --theme-secondary: #444444;
@@ -18,19 +18,19 @@
   --theme-accent-faint: #FEF3EC;
   --theme-danger: #C0392B;
   --theme-danger-faint: #FDF0EF;
-  --theme-sidebar: #111111;
-  --theme-sidebar-text: #FFFFFF;
-  --theme-sidebar-muted: #888888;
+  --theme-sidebar: #FFFFFF;
+  --theme-sidebar-text: #111111;
+  --theme-sidebar-muted: #555555;
   --theme-sidebar-active: #D4600A;
 }
 
 /* ── Dark mode overrides ────────────────────────────────────────────────── */
 .dark {
-  --theme-bg: #0F1117;
-  --theme-surface: #1A1D24;
-  --theme-surface-raised: #21252E;
-  --theme-border: #2A2D35;
-  --theme-border-strong: #3A3D45;
+  --theme-bg: #0D0D0D;
+  --theme-surface: #141414;
+  --theme-surface-raised: #141414;
+  --theme-border: #222222;
+  --theme-border-strong: #333333;
   --theme-primary: #F0F0F0;
   --theme-secondary: #AAAAAA;
   --theme-muted: #666666;
@@ -39,7 +39,7 @@
   --theme-accent-faint: #2A1A0F;
   --theme-danger: #E05555;
   --theme-danger-faint: #2A1010;
-  --theme-sidebar: #0A0C10;
+  --theme-sidebar: #000000;
   --theme-sidebar-text: #F0F0F0;
   --theme-sidebar-muted: #666666;
   --theme-sidebar-active: #E8732A;
@@ -68,7 +68,7 @@
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-serif: var(--font-playfair), Georgia, serif;
 
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.08);
   --shadow-elevated: 0 4px 12px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.06);
 }
 

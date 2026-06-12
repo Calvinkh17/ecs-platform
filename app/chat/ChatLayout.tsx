@@ -310,13 +310,13 @@ export default function ChatLayout({ channels, staffUsers, myId, myName }: Props
               <button
                 key={ch.id}
                 onClick={() => selectChannel(ch.id)}
-                className={`w-full text-left px-3 py-2 mx-1 rounded-md flex items-center gap-2 text-sm transition-all ${
+                className={`w-full text-left px-3 py-2 mx-1 flex items-center gap-2 text-sm transition-all rounded-md ${
                   activeId === ch.id
-                    ? "bg-accent text-white"
-                    : "text-secondary hover:bg-surface hover:text-primary"
+                    ? "bg-accent/10 text-primary border-l-[3px] border-accent !pl-[9px]"
+                    : "text-secondary hover:bg-surface hover:text-primary border-l-[3px] border-transparent"
                 }`}
               >
-                <span className={`font-mono text-base leading-none ${activeId === ch.id ? "text-white/60" : "text-muted"}`}>#</span>
+                <span className={`font-mono text-base leading-none ${activeId === ch.id ? "text-accent" : "text-muted"}`}>#</span>
                 <span className="truncate font-medium">{ch.name}</span>
               </button>
             ))
@@ -431,7 +431,7 @@ export default function ChatLayout({ channels, staffUsers, myId, myName }: Props
                                 <div
                                   className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold select-none"
                                   style={{
-                                    background: `hsl(${(msg.author_name.charCodeAt(0) * 37) % 360}deg 50% 50%)`,
+                                    background: "var(--theme-accent)",
                                     color: "white",
                                   }}
                                 >
@@ -483,7 +483,7 @@ export default function ChatLayout({ channels, staffUsers, myId, myName }: Props
                       <div
                         className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 select-none"
                         style={{
-                          background: `hsl(${(m.name.charCodeAt(0) * 37) % 360}deg 50% 50%)`,
+                          background: "var(--theme-accent)",
                           color: "white",
                         }}
                       >

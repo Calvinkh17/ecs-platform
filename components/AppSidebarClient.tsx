@@ -114,7 +114,7 @@ function ThemeToggle({ collapsed }: { collapsed: boolean }) {
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
       title={collapsed ? (isDark ? "Switch to light mode" : "Switch to dark mode") : undefined}
-      className="flex items-center justify-center w-8 h-8 rounded-lg text-sidebar-muted hover:text-sidebar-text hover:bg-white/5 transition-colors flex-shrink-0"
+      className="flex items-center justify-center w-8 h-8 rounded-lg text-sidebar-muted hover:text-sidebar-text hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex-shrink-0"
     >
       {isDark ? <SunIcon /> : <MoonIcon />}
     </button>
@@ -170,7 +170,7 @@ function SidebarNav({ navItems, pathname, collapsed, userName, onNavClick }: Sid
                 collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2.5",
                 isActive
                   ? "bg-sidebar-active/15 text-sidebar-text border-l-[3px] border-sidebar-active !pl-[9px]"
-                  : "text-sidebar-muted hover:text-sidebar-text hover:bg-white/5 border-l-[3px] border-transparent",
+                  : "text-sidebar-muted hover:text-sidebar-text hover:bg-black/5 dark:hover:bg-white/5 border-l-[3px] border-transparent",
               ].join(" ")}
             >
               <item.icon size={17} />
@@ -189,9 +189,9 @@ function SidebarNav({ navItems, pathname, collapsed, userName, onNavClick }: Sid
       </nav>
 
       {/* User footer */}
-      <div className="border-t border-white/10 px-2 py-3">
+      <div className="border-t border-black/8 dark:border-white/10 px-2 py-3">
         <div className={`flex items-center gap-2 px-1 ${collapsed ? "justify-center flex-col" : ""}`}>
-          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold text-sidebar-text flex-shrink-0 select-none">
+          <div className="w-8 h-8 rounded-full bg-black/8 dark:bg-white/10 flex items-center justify-center text-sm font-bold text-sidebar-text flex-shrink-0 select-none">
             {userName ? userName.charAt(0).toUpperCase() : "?"}
           </div>
           {!collapsed && (
@@ -293,11 +293,11 @@ export default function AppSidebarClient({ role, userName, userId, title }: Prop
           collapsed ? "w-16" : "w-64",
         ].join(" ")}
       >
-        <div className={`flex items-center px-4 py-5 border-b border-white/10 ${collapsed ? "justify-center" : "justify-between"}`}>
+        <div className={`flex items-center px-4 py-5 border-b border-black/8 dark:border-white/10 ${collapsed ? "justify-center" : "justify-between"}`}>
           {!collapsed && appName}
           <button
             onClick={() => setCollapsed((c) => !c)}
-            className="flex items-center justify-center w-7 h-7 rounded-md text-sidebar-muted hover:text-sidebar-text hover:bg-white/5 transition-colors"
+            className="flex items-center justify-center w-7 h-7 rounded-md text-sidebar-muted hover:text-sidebar-text hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
@@ -308,7 +308,7 @@ export default function AppSidebarClient({ role, userName, userId, title }: Prop
       </div>
 
       {/* ── Mobile top bar ───────────────────────────────────── */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-sidebar flex items-center px-4 gap-3 shadow-sm border-b border-white/10">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-sidebar flex items-center px-4 gap-3 shadow-sm border-b border-black/8 dark:border-white/10">
         <button
           onClick={() => setMobileOpen(true)}
           className="flex items-center justify-center w-9 h-9 rounded-lg text-sidebar-muted hover:text-sidebar-text transition-colors"
@@ -334,11 +334,11 @@ export default function AppSidebarClient({ role, userName, userId, title }: Prop
             mobileOpen ? "translate-x-0" : "-translate-x-full",
           ].join(" ")}
         >
-          <div className="flex items-center justify-between px-4 py-5 border-b border-white/10">
+          <div className="flex items-center justify-between px-4 py-5 border-b border-black/8 dark:border-white/10">
             {appName}
             <button
               onClick={() => setMobileOpen(false)}
-              className="flex items-center justify-center w-7 h-7 rounded-md text-sidebar-muted hover:text-sidebar-text hover:bg-white/5 transition-colors"
+              className="flex items-center justify-center w-7 h-7 rounded-md text-sidebar-muted hover:text-sidebar-text hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
               aria-label="Close menu"
             >
               <XIcon />

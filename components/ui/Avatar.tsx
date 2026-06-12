@@ -14,12 +14,11 @@ const sizeClasses: Record<Size, string> = {
 };
 
 export function Avatar({ name, size = "md", className = "" }: AvatarProps) {
-  const hue = (name.charCodeAt(0) * 37) % 360;
   return (
     <div
       className={`${sizeClasses[size]} rounded-full flex items-center justify-center font-semibold select-none flex-shrink-0 ${className}`}
       style={{
-        background: `hsl(${hue}deg 50% 50%)`,
+        background: "var(--theme-accent)",
         color: "white",
       }}
     >
