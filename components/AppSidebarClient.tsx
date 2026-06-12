@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { createClient } from "@/lib/supabase/client";
 import { signOut } from "@/app/actions";
+import { useDevRole } from "@/lib/dev-role-context";
 
 // ── Icons ─────────────────────────────────────────────────────────────
 function BookIcon({ size = 17 }: { size?: number }) {
@@ -225,6 +226,8 @@ export default function AppSidebarClient({ role, userName, userId, title }: Prop
   const [mobileOpen, setMobileOpen] = useState(false);
   const [announceBadge, setAnnounceBadge] = useState(0);
   const [chatBadge, setChatBadge] = useState(0);
+  const { previewRole } = useDevRole();
+  const effectiveRole = previewRole ?? role;
 
   // Announcement unread count
   useEffect(() => {
@@ -261,19 +264,19 @@ export default function AppSidebarClient({ role, userName, userId, title }: Prop
   }, [userId, role]);
 
   const navItems: NavItem[] = [];
-  if (role === "admin" || role === "teacher") {
+  if (effectiveRole === "admin" || effectiveRole === "teacher") {
     navItems.push({ href: "/teacher", label: "Classes", icon: BookIcon, matchPrefix: true });
   }
-  if (role === "admin" || role === "parent" || role === "student") {
+  if (effectiveRole === "admin" || effectiveRole === "parent" || effectiveRole === "student") {
     navItems.push({ href: "/parent", label: "Parent Portal", icon: UsersIcon });
   }
-  if (role === "admin") {
+  if (effectiveRole === "admin") {
     navItems.push({ href: "/admin", label: "Admin Panel", icon: ShieldIcon });
   }
-  if (role !== "pending") {
+  if (effectiveRole !== "pending") {
     navItems.push({ href: "/announcements", label: "Announcements", icon: BellIcon, badge: announceBadge });
   }
-  if (role === "admin" || role === "teacher") {
+  if (effectiveRole === "admin" || effectiveRole === "teacher") {
     navItems.push({ href: "/chat", label: "Staff Chat", icon: ChatIcon, badge: chatBadge, matchPrefix: true });
   }
 
