@@ -10,7 +10,8 @@ export default async function Home() {
   if (!me) redirect("/login");
   if (me.role === "pending") redirect("/pending");
   if (me.role === "admin" || me.role === "teacher") redirect("/teacher");
-  if (me.role === "parent" || me.role === "student") redirect("/parent");
+  if (me.role === "parent") redirect("/parent");
+  if (me.role === "student") redirect("/student");
 
   return (
     <div className="min-h-screen bg-sidebar flex items-center justify-center px-4">

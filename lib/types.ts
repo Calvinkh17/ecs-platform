@@ -28,6 +28,8 @@ export interface Assignment {
   class_id: string;
   name: string;
   due_date: string;
+  file_url: string | null;
+  file_name: string | null;
   created_at: string;
 }
 
@@ -118,5 +120,44 @@ export interface MessageMention {
   id: string;
   message_id: string;
   mentioned_user_id: string;
+  created_at: string;
+}
+
+export type TeacherStatus = "active" | "on_leave" | "contract" | "probation" | "retired" | "resigned";
+
+export interface Teacher {
+  id: string;
+  name: string;
+  email: string | null;
+  photo_url: string | null;
+  room_number: string | null;
+  department: string | null;
+  status: TeacherStatus;
+  start_date: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export type DisciplineKeyword =
+  | "Self-Control"
+  | "Cheating"
+  | "Lying"
+  | "Blurting Out"
+  | "Disrespect"
+  | "Tardiness"
+  | "Other";
+
+export type DisciplineStatus = "open" | "in_progress" | "resolved";
+
+export interface DisciplineRecord {
+  id: string;
+  student_id: string | null;
+  reported_by: string | null;
+  date: string;
+  event_name: string;
+  description: string | null;
+  keywords: DisciplineKeyword[];
+  handled_by: string | null;
+  status: DisciplineStatus;
   created_at: string;
 }

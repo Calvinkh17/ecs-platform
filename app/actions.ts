@@ -260,7 +260,25 @@ export async function addAssignment(formData: FormData) {
   const due_date = formData.get("due_date") as string;
   const class_id = formData.get("class_id") as string;
   if (!name?.trim() || !due_date || !class_id) return;
-  await supabase.from("assignments").insert({ name: name.trim(), due_date, class_id });
+
+  let file_url: string | null = null;
+  let file_name: string | null = null;
+  const file = formData.get("file") as File | null;
+  if (file && file.size > 0) {
+    const ext = file.name.split(".").pop() ?? "bin";
+    const path = `${class_id}-${Date.now()}.${ext}`;
+    const bytes = await file.arrayBuffer();
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from("assignment-files")
+      .upload(path, bytes, { contentType: file.type, upsert: false });
+    if (!uploadError && uploadData) {
+      const { data: urlData } = supabase.storage.from("assignment-files").getPublicUrl(uploadData.path);
+      file_url = urlData.publicUrl;
+      file_name = file.name;
+    }
+  }
+
+  await supabase.from("assignments").insert({ name: name.trim(), due_date, class_id, file_url, file_name });
   refresh();
 }
 
@@ -312,4 +330,103 @@ export async function deleteAssignment(formData: FormData) {
   if (!id) return;
   await supabase.from("assignments").delete().eq("id", id);
   refresh();
+}
+
+export async function createDisciplineRecord(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated." };
+  const student_id = formData.get("student_id") as string | null;
+  const event_name = formData.get("event_name") as string;
+  const date = formData.get("date") as string;
+  const description = formData.get("description") as string;
+  const keywordsRaw = formData.get("keywords") as string;
+  const reported_by = formData.get("reported_by") as string;
+  if (!event_name?.trim() || !date) return { error: "Event name and date are required." };
+  let keywords: string[] = [];
+  try { keywords = JSON.parse(keywordsRaw || "[]"); } catch { keywords = []; }
+  const { error } = await supabase.from("discipline_records").insert({
+    student_id: student_id || null,
+    reported_by: reported_by || user.id,
+    date,
+    event_name: event_name.trim(),
+    description: description?.trim() || null,
+    keywords,
+    status: "open",
+  });
+  if (error) return { error: error.message };
+  return {};
+}
+
+export async function updateDisciplineRecord(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const id = formData.get("id") as string;
+  const status = formData.get("status") as string;
+  const handled_by = formData.get("handled_by") as string;
+  if (!id) return { error: "Missing ID." };
+  const { error } = await supabase
+    .from("discipline_records")
+    .update({
+      status: status || undefined,
+      handled_by: handled_by || null,
+    })
+    .eq("id", id);
+  if (error) return { error: error.message };
+  return {};
+}
+
+export async function upsertTeacher(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const id = formData.get("id") as string;
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const room_number = formData.get("room_number") as string;
+  const department = formData.get("department") as string;
+  const status = formData.get("status") as string;
+  const start_date = formData.get("start_date") as string;
+  const notes = formData.get("notes") as string;
+  const existing_photo_url = formData.get("existing_photo_url") as string;
+  if (!id || !name?.trim()) return { error: "ID and name are required." };
+
+  let photo_url: string | null = existing_photo_url || null;
+  const photoFile = formData.get("photo") as File | null;
+  if (photoFile && photoFile.size > 0) {
+    const bytes = await photoFile.arrayBuffer();
+    const ext = photoFile.name.split(".").pop() ?? "jpg";
+    const path = `${id}-${Date.now()}.${ext}`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from("teacher-photos")
+      .upload(path, bytes, { contentType: photoFile.type, upsert: true });
+    if (uploadError) return { error: uploadError.message };
+    const { data: urlData } = supabase.storage.from("teacher-photos").getPublicUrl(uploadData.path);
+    photo_url = urlData.publicUrl;
+  }
+
+  const { error } = await supabase.from("teachers").upsert(
+    {
+      id,
+      name: name.trim(),
+      email: email?.trim() || null,
+      photo_url,
+      room_number: room_number?.trim() || null,
+      department: department?.trim() || null,
+      status: status || "active",
+      start_date: start_date || null,
+      notes: notes?.trim() || null,
+    },
+    { onConflict: "id" }
+  );
+  if (error) return { error: error.message };
+  refresh();
+  return {};
+}
+
+export async function deleteTeacher(formData: FormData): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const id = formData.get("id") as string;
+  if (!id) return { error: "Missing ID." };
+  const { error } = await supabase.from("teachers").delete().eq("id", id);
+  if (error) return { error: error.message };
+  refresh();
+  return {};
 }

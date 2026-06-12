@@ -8,8 +8,11 @@ import ObservationTab from "./ObservationTab";
 import AnnouncementAccessTab from "./AnnouncementAccessTab";
 import ChannelsTab from "./ChannelsTab";
 import ClassesTab from "./ClassesTab";
+import TeachersTab from "./TeachersTab";
+import DisciplineTab from "./DisciplineTab";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { RoleBadge } from "@/components/ui/Badge";
+import type { Teacher, DisciplineRecord } from "@/lib/types";
 
 const GRADE_LEVELS = ["K","1","2","3","4","5","6","7","8","9","10","11","12","Graduated"];
 const ROLES = ["admin","teacher","parent","student","pending"] as const;
@@ -19,6 +22,12 @@ interface AppUser {
   name: string;
   email: string;
   role: string;
+}
+
+interface EnrichedDisciplineRecord extends DisciplineRecord {
+  student_name?: string;
+  reporter_name?: string;
+  handler_name?: string;
 }
 
 interface Props {
@@ -32,16 +41,19 @@ interface Props {
   initialChannels: ChatChannel[];
   initialChannelMembers: (ChannelMember & { user_name: string; user_email: string })[];
   initialClasses: Class[];
+  initialTeachers: Teacher[];
+  initialDisciplineRecords: EnrichedDisciplineRecord[];
+  studentMap: Record<string, string>;
 }
 
 const inputCls = "px-3 h-9 rounded-md border border-border bg-surface-raised text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/40 transition-colors";
 const selectCls = "h-9 px-3 rounded-md border border-border bg-surface-raised text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent/40 transition-colors";
 const btnPrimary = "px-4 h-9 bg-accent text-white text-sm font-medium rounded-md hover:bg-accent-hover transition-colors disabled:opacity-50";
 
-export default function AdminTabs({ meId, users, schoolStudents: initialStudents, initialParentLinks, initialObservations, initialResponses, initialAnnouncementAccess, initialChannels, initialChannelMembers, initialClasses }: Props) {
+export default function AdminTabs({ meId, users, schoolStudents: initialStudents, initialParentLinks, initialObservations, initialResponses, initialAnnouncementAccess, initialChannels, initialChannelMembers, initialClasses, initialTeachers, initialDisciplineRecords, studentMap }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const validTabs = ["users", "students", "parents", "observations", "announcements", "channels", "classes"] as const;
+  const validTabs = ["users", "students", "parents", "observations", "announcements", "channels", "classes", "teachers", "discipline"] as const;
   type Tab = typeof validTabs[number];
   const [tab, setTab] = useState<Tab>(() => {
     const t = searchParams.get("tab") as Tab;
@@ -84,21 +96,25 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
     return true;
   });
 
+  const openDiscipline = initialDisciplineRecords.filter((r) => r.status === "open").length;
+
   const TAB_LABELS: Record<Tab, string> = {
     users: "Users", students: "Students", parents: "Parents",
     observations: "Observations", announcements: "Announcements",
     channels: "Channels", classes: "Classes",
+    teachers: "Teachers", discipline: "Discipline",
   };
   const TAB_COUNTS: Partial<Record<Tab, number>> = {
     users: users.length, students: roster.length,
     parents: links.length, classes: initialClasses.length,
+    teachers: initialTeachers.length, discipline: initialDisciplineRecords.length,
   };
 
   return (
     <div className="space-y-8">
       {/* Tabs */}
       <div className="flex border-b border-border flex-wrap -mb-px">
-        {(["users", "students", "parents", "observations", "announcements", "channels", "classes"] as const).map(t => (
+        {(["users", "students", "parents", "observations", "announcements", "channels", "classes", "teachers", "discipline"] as const).map(t => (
           <button
             key={t}
             onClick={() => changeTab(t)}
@@ -116,6 +132,9 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
             )}
             {t === "users" && pending.length > 0 && tab !== "users" && (
               <span className="ml-1.5 w-1.5 h-1.5 rounded-full bg-amber-400 inline-block align-middle" />
+            )}
+            {t === "discipline" && openDiscipline > 0 && tab !== "discipline" && (
+              <span className="ml-1.5 w-1.5 h-1.5 rounded-full bg-danger inline-block align-middle" />
             )}
           </button>
         ))}
@@ -397,6 +416,12 @@ export default function AdminTabs({ meId, users, schoolStudents: initialStudents
       )}
       {tab === "classes" && (
         <ClassesTab initialClasses={initialClasses} users={users} />
+      )}
+      {tab === "teachers" && (
+        <TeachersTab initialTeachers={initialTeachers} users={users} />
+      )}
+      {tab === "discipline" && (
+        <DisciplineTab initialRecords={initialDisciplineRecords} users={users} studentMap={studentMap} />
       )}
 
       {/* ── Parents tab ── */}

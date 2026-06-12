@@ -87,7 +87,18 @@ function GradeTable({ classes }: { classes: ClassReport[] }) {
                   const letter = score !== null ? letterGrade(score) : null;
                   return (
                     <tr key={a.id} className={`border-b border-border last:border-0 hover:bg-accent/5 transition-colors ${idx % 2 === 1 ? "bg-surface/40" : ""}`}>
-                      <td className="px-5 py-3 font-medium text-primary">{a.name}</td>
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-medium text-primary">{a.name}</span>
+                          {a.file_url && (
+                            <a href={a.file_url} target="_blank" rel="noopener noreferrer" title={a.file_name ?? "Download attachment"} className="text-muted hover:text-accent transition-colors flex-shrink-0">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                              </svg>
+                            </a>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-5 py-3 text-center text-secondary">
                         {new Date(a.due_date + "T00:00:00").toLocaleDateString()}
                       </td>

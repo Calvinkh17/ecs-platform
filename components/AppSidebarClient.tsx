@@ -267,8 +267,11 @@ export default function AppSidebarClient({ role, userName, userId, title }: Prop
   if (effectiveRole === "admin" || effectiveRole === "teacher") {
     navItems.push({ href: "/teacher", label: "Classes", icon: BookIcon, matchPrefix: true });
   }
-  if (effectiveRole === "admin" || effectiveRole === "parent" || effectiveRole === "student") {
+  if (effectiveRole === "admin" || effectiveRole === "parent") {
     navItems.push({ href: "/parent", label: "Parent Portal", icon: UsersIcon });
+  }
+  if (effectiveRole === "student") {
+    navItems.push({ href: "/student", label: "My Grades", icon: BookIcon });
   }
   if (effectiveRole === "admin") {
     navItems.push({ href: "/admin", label: "Admin Panel", icon: ShieldIcon });

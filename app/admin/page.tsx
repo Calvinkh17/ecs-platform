@@ -3,7 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AppNav from "@/components/AppNav";
 import AdminTabs from "./AdminTabs";
-import type { SchoolStudent, ParentLink, Observation, ObservationResponse, AnnouncementAccess, ChatChannel, ChannelMember, Class } from "@/lib/types";
+import type { SchoolStudent, ParentLink, Observation, ObservationResponse, AnnouncementAccess, ChatChannel, ChannelMember, Class, Teacher, DisciplineRecord } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +22,8 @@ export default async function AdminPage() {
     { data: chatChannels },
     { data: rawChannelMembers },
     { data: allClasses },
+    { data: teachers },
+    { data: rawDiscipline },
   ] = await Promise.all([
     supabase.from("users").select("*").order("created_at", { ascending: false }),
     supabase.from("school_students").select("*").order("name"),
@@ -32,6 +34,8 @@ export default async function AdminPage() {
     supabase.from("chat_channels").select("*").order("name"),
     supabase.from("channel_members").select("*").order("joined_at"),
     supabase.from("classes").select("*").order("name"),
+    supabase.from("teachers").select("*").order("name"),
+    supabase.from("discipline_records").select("*").order("created_at", { ascending: false }),
   ]);
 
   const parentLinks: ParentLink[] = (rawLinks ?? []).map((link) => ({
@@ -47,9 +51,22 @@ export default async function AdminPage() {
     user_email: users?.find((u) => u.id === m.user_id)?.email ?? "",
   }));
 
+  const studentMap = Object.fromEntries(
+    ((schoolStudents as SchoolStudent[]) ?? []).map((s) => [s.id, s.name])
+  );
+  const userMap = Object.fromEntries(
+    (users ?? []).map((u) => [u.id, u.name || u.email])
+  );
+  const enrichedDiscipline = ((rawDiscipline as DisciplineRecord[]) ?? []).map((r) => ({
+    ...r,
+    student_name: r.student_id ? studentMap[r.student_id] : undefined,
+    reporter_name: r.reported_by ? userMap[r.reported_by] : undefined,
+    handler_name: r.handled_by ? userMap[r.handled_by] : undefined,
+  }));
+
   return (
     <AppNav title="Admin Panel">
-      <main className="max-w-4xl mx-auto px-6 py-8">
+      <main className="max-w-5xl mx-auto px-6 py-8">
         <AdminTabs
           meId={me.id}
           users={users ?? []}
@@ -61,6 +78,9 @@ export default async function AdminPage() {
           initialChannels={(chatChannels as ChatChannel[]) ?? []}
           initialChannelMembers={channelMembersWithNames}
           initialClasses={(allClasses as Class[]) ?? []}
+          initialTeachers={(teachers as Teacher[]) ?? []}
+          initialDisciplineRecords={enrichedDiscipline}
+          studentMap={studentMap}
         />
       </main>
     </AppNav>

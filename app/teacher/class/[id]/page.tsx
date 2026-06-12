@@ -75,7 +75,7 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
 
           <section className="card rounded-xl p-5">
             <SectionLabel>Add Assignment</SectionLabel>
-            <form action={addAssignment} className="space-y-2">
+            <form action={addAssignment} encType="multipart/form-data" className="space-y-2">
               <input type="hidden" name="class_id" value={id} />
               <input
                 type="text"
@@ -98,12 +98,28 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
                   Add
                 </button>
               </div>
+              <label className="flex items-center gap-2 cursor-pointer text-xs text-muted hover:text-secondary transition-colors">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                </svg>
+                <span>Attach file (optional)</span>
+                <input type="file" name="file" accept=".pdf,image/*,.doc,.docx" className="sr-only" />
+              </label>
             </form>
             {assignments?.length ? (
               <ul className="mt-4 divide-y divide-border border border-border rounded-lg overflow-hidden">
                 {(assignments as Assignment[]).map((a) => (
                   <li key={a.id} className="text-sm px-3 py-2.5 flex items-center justify-between gap-2 hover:bg-surface transition-colors">
-                    <span className="font-medium text-primary truncate">{a.name}</span>
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <span className="font-medium text-primary truncate">{a.name}</span>
+                      {a.file_url && (
+                        <a href={a.file_url} target="_blank" rel="noopener noreferrer" title={a.file_name ?? "Attachment"} className="text-muted hover:text-accent transition-colors flex-shrink-0">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                          </svg>
+                        </a>
+                      )}
+                    </span>
                     <span className="flex items-center gap-3 flex-shrink-0">
                       <span className="text-xs text-muted">
                         Due {new Date(a.due_date + "T00:00:00").toLocaleDateString()}
